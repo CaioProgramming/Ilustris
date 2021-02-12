@@ -63,21 +63,37 @@ fun View.popOut() {
 }
 
 fun View.repeatBounce() {
+    visible()
     val bounceRepeat = AnimationUtils.loadAnimation(context, R.anim.bounce_repeat)
     startAnimation(bounceRepeat)
 }
 
 fun View.slideInBottom() {
+    visible()
     val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_in_bottom)
     startAnimation(slideInBottom)
 }
 
-fun View.slideOutBottom() {
+fun View.slideInRight() {
+    visible()
     val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_in_right)
     startAnimation(slideInBottom)
 }
 
 fun View.slideOutLeft() {
-    val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_out_left)
+    val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_out_left).apply {
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(p0: Animation?) {
+            }
+
+            override fun onAnimationEnd(p0: Animation?) {
+                gone()
+            }
+
+            override fun onAnimationRepeat(p0: Animation?) {
+            }
+
+        })
+    }
     startAnimation(slideInBottom)
 }

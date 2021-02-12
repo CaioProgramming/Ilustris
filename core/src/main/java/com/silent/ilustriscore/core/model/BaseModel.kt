@@ -23,7 +23,7 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
     EventListener<QuerySnapshot> where T : BaseBean {
 
 
-    private fun db(): CollectionReference = FirebaseFirestore.getInstance().collection(path)
+    protected fun db(): CollectionReference = FirebaseFirestore.getInstance().collection(path)
 
 
     val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
