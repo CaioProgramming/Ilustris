@@ -13,7 +13,6 @@ interface PresenterContract<T> where T : BaseBean {
     fun saveData(data: T, forcedID: String? = null)
     fun deleteData(data: T)
     fun updateData(data: T)
-
     fun queryData(value: String, field: String)
     fun onDataRetrieve(data: List<T>)
     fun onSingleData(data: T)

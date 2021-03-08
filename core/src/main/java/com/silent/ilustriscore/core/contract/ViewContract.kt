@@ -7,11 +7,6 @@ import com.silent.ilustriscore.core.model.DTOMessage
 import com.silent.ilustriscore.core.presenter.BasePresenter
 
 
-/**
- * @Author Kotlin MVP Plugin
- * @Date 2019/10/15
- * @Description input description
- **/
 interface ViewContract<T> where  T : BaseBean {
 
     val context: Context
