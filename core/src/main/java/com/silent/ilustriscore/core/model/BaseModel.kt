@@ -54,7 +54,12 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
                     )
                 )
             } else {
-                presenter.modelCallBack(errorMessage("Ocorreu um erro ao atualizar os dados de $data \n ${it.exception?.message} "))
+                presenter.modelCallBack(
+                    errorMessage(
+                        "Ocorreu um erro ao atualizar os dados de $data \n ${it.exception?.message} ",
+                        ErrorType.UPDATE_ERROR
+                    )
+                )
             }
         }
     }
@@ -100,7 +105,7 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
 
     private fun isDisconnected(): Boolean {
         if (currentUser == null) {
-            presenter.modelCallBack(DTOMessage("Usuário desconectado", MessageType.ERROR))
+            presenter.modelCallBack(errorMessage("Usuário desconectado", ErrorType.DISCONNECTED))
             return true
         }
         return false
@@ -166,7 +171,12 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
                 if (snapshot != null && snapshot.exists()) {
                     deserializeDataSnapshot(snapshot).let { presenter.onSingleData(it) }
                 } else {
-                    presenter.modelCallBack(errorMessage("Dados não encontrados para $id"))
+                    presenter.modelCallBack(
+                        errorMessage(
+                            "Dados não encontrados para $id",
+                            ErrorType.DATANOTFOUND
+                        )
+                    )
                 }
             }
         }

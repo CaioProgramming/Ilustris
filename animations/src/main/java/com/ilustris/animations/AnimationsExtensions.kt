@@ -6,94 +6,60 @@ import android.view.animation.AnimationUtils
 import com.silent.ilustriscore.core.utilities.gone
 import com.silent.ilustriscore.core.utilities.visible
 
-fun View.fadeIn() {
-    visible()
-    val fadein = AnimationUtils.loadAnimation(context, R.anim.fade_in)
-    startAnimation(fadein)
+enum class ViewVisibility {
+    GONE, VISIBLE
 }
 
-fun View.fadeOut() {
-    val fadeOut = AnimationUtils.loadAnimation(context, R.anim.fade_out)
-    fadeOut.setAnimationListener(object : Animation.AnimationListener {
+fun View.fadeIn() = makeAnimation(this, R.anim.fade_in, ViewVisibility.VISIBLE)
+
+fun View.fadeOut() = makeAnimation(this, R.anim.fade_in, ViewVisibility.GONE)
+
+fun View.repeatFade() = makeAnimation(this, R.anim.fade_in_repeat, ViewVisibility.VISIBLE)
+
+fun View.bounce() = makeAnimation(this, R.anim.bounce, ViewVisibility.VISIBLE)
+
+fun View.popIn() = makeAnimation(this, R.anim.pop_in, ViewVisibility.VISIBLE)
+
+fun View.popOut() = makeAnimation(this, R.anim.pop_out, ViewVisibility.GONE)
+
+fun View.repeatBounce() = makeAnimation(this, R.anim.bounce_repeat, ViewVisibility.VISIBLE)
+
+fun View.slideInRight() = makeAnimation(this, R.anim.slide_in_right, ViewVisibility.VISIBLE)
+
+fun View.slideOutLeft() = makeAnimation(this, R.anim.slide_out_left, ViewVisibility.GONE)
+
+fun View.flip() = makeAnimation(this, R.anim.flip, ViewVisibility.VISIBLE)
+
+fun View.slideUp() = makeAnimation(this, R.anim.slide_up, ViewVisibility.VISIBLE)
+
+fun View.slideDown() = makeAnimation(this, R.anim.slide_down, ViewVisibility.GONE)
+
+fun View.zoomIn() = makeAnimation(this, R.anim.zoom_in, ViewVisibility.VISIBLE)
+
+fun View.zoomOut() = makeAnimation(this, R.anim.zoom_out, ViewVisibility.GONE)
+
+fun View.rotate() = makeAnimation(this, R.anim.rotate, ViewVisibility.VISIBLE)
+
+fun View.move() = makeAnimation(this, R.anim.move, ViewVisibility.VISIBLE)
+
+fun View.together() = makeAnimation(this, R.anim.together, ViewVisibility.GONE)
+
+private fun makeAnimation(view: View, animation: Int, viewVisibility: ViewVisibility) {
+    val anim = AnimationUtils.loadAnimation(view.context, animation)
+    anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationStart(p0: Animation?) {
+            if (viewVisibility == ViewVisibility.VISIBLE) view.visible()
         }
 
         override fun onAnimationEnd(p0: Animation?) {
-            gone()
+            if (viewVisibility == ViewVisibility.GONE) {
+                view.gone()
+            }
         }
 
         override fun onAnimationRepeat(p0: Animation?) {
         }
 
     })
-    startAnimation(fadeOut)
-}
-
-fun View.repeatFade() {
-    val fadeRepeat = AnimationUtils.loadAnimation(context, R.anim.fade_in_repeat)
-    startAnimation(fadeRepeat)
-}
-
-fun View.bounce() {
-    val bounce = AnimationUtils.loadAnimation(context, R.anim.bounce)
-    startAnimation(bounce)
-}
-
-fun View.popIn() {
-    visible()
-    val popIn = AnimationUtils.loadAnimation(context, R.anim.pop_in)
-    startAnimation(popIn)
-}
-
-fun View.popOut() {
-    val popOut = AnimationUtils.loadAnimation(context, R.anim.pop_out)
-    popOut.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationStart(p0: Animation?) {
-        }
-
-        override fun onAnimationEnd(p0: Animation?) {
-            gone()
-        }
-
-        override fun onAnimationRepeat(p0: Animation?) {
-        }
-
-    })
-    startAnimation(popOut)
-}
-
-fun View.repeatBounce() {
-    visible()
-    val bounceRepeat = AnimationUtils.loadAnimation(context, R.anim.bounce_repeat)
-    startAnimation(bounceRepeat)
-}
-
-fun View.slideInBottom() {
-    visible()
-    val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_in_bottom)
-    startAnimation(slideInBottom)
-}
-
-fun View.slideInRight() {
-    visible()
-    val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_in_right)
-    startAnimation(slideInBottom)
-}
-
-fun View.slideOutLeft() {
-    val slideInBottom = AnimationUtils.loadAnimation(context, R.anim.slide_out_left).apply {
-        setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(p0: Animation?) {
-            }
-
-            override fun onAnimationEnd(p0: Animation?) {
-                gone()
-            }
-
-            override fun onAnimationRepeat(p0: Animation?) {
-            }
-
-        })
-    }
-    startAnimation(slideInBottom)
+    view.startAnimation(anim)
 }
