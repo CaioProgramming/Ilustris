@@ -16,7 +16,7 @@ interface ViewContract<T> where  T : BaseBean {
 
     val context: Context
     val viewBind: ViewDataBinding
-    fun presenter(): BasePresenter<T>
+    val presenter: BasePresenter<T>
     fun onLoading()
     fun onLoadFinish()
     fun error(message: String)

@@ -13,9 +13,9 @@ import kotlinx.coroutines.launch
 
 abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
 
-    val currentUser: FirebaseUser?
-        get() = model.currentUser
-
+    val user by lazy {
+        model.currentUser
+    }
 
     fun loadData() {
         view.onLoading()
@@ -74,7 +74,6 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
             view.getCallBack(dtoMessage)
         }
     }
-
 
     override fun queryData(value: String, field: String) {
         view.onLoading()

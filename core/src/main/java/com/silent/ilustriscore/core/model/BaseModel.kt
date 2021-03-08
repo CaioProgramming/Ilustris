@@ -10,6 +10,7 @@ import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ModelContract
+import com.silent.ilustriscore.core.presenter.BasePresenter
 import com.silent.ilustriscore.core.utilities.ErrorType
 import com.silent.ilustriscore.core.utilities.MessageType
 import com.silent.ilustriscore.core.utilities.OperationType
@@ -19,15 +20,17 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
-abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
+abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelContract<T>,
+    OnCompleteListener<Void>,
     EventListener<QuerySnapshot> where T : BaseBean {
 
+    private val reference: CollectionReference by lazy {
+        FirebaseFirestore.getInstance().collection(path)
+    }
 
-    protected fun db(): CollectionReference = FirebaseFirestore.getInstance().collection(path)
-
-
-    val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
-
+    val currentUser: FirebaseUser? by lazy {
+        FirebaseAuth.getInstance().currentUser
+    }
 
     private fun saveComplete(data: T): OnCompleteListener<DocumentReference> {
         return OnCompleteListener {
@@ -67,7 +70,7 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
     override fun addData(data: T, forcedID: String?) {
         GlobalScope.launch {
             if (forcedID.isNullOrEmpty()) {
-                db().add(data).addOnCompleteListener(saveComplete(data))
+                reference.add(data).addOnCompleteListener(saveComplete(data))
             } else {
                 editData(data)
             }
@@ -92,13 +95,13 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
     override fun editData(data: T) {
         if (isDisconnected()) return
         Log.i(javaClass.simpleName, "editing: $data")
-        db().document(data.id).set(data).addOnCompleteListener(updateComplete(data))
+        reference.document(data.id).set(data).addOnCompleteListener(updateComplete(data))
     }
 
     fun editField(data: Any, id: String, field: String) {
         if (isDisconnected()) return
         GlobalScope.launch {
-            db().document(id).update(field, data).addOnCompleteListener(this@BaseModel)
+            reference.document(id).update(field, data).addOnCompleteListener(this@BaseModel)
         }
 
     }
@@ -113,19 +116,20 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
 
     override fun deleteData(id: String) {
         if (isDisconnected()) return
-        db().document(id).delete().addOnCompleteListener(this@BaseModel)
+        reference.document(id).delete().addOnCompleteListener(this@BaseModel)
     }
 
     override fun query(query: String, field: String) {
         if (isDisconnected()) return
         presenter.modelCallBack(infoMessage("Buscando por $query em $field na collection $path"))
-        db().orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).addSnapshotListener(this)
+        reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
+            .addSnapshotListener(this)
     }
 
     fun explicitSearch(query: String, field: String) {
         if (isDisconnected()) return
         presenter.modelCallBack(infoMessage("Buscando por $query em $field na collection $path"))
-        db().whereEqualTo(field, query).addSnapshotListener(this)
+        reference.whereEqualTo(field, query).addSnapshotListener(this)
     }
 
     override fun onEvent(value: QuerySnapshot?, error: FirebaseFirestoreException?) {
@@ -151,7 +155,7 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
     override fun getAllData() {
         if (isDisconnected()) return
         GlobalScope.launch(Dispatchers.IO) {
-            db().addSnapshotListener(this@BaseModel)
+            reference.addSnapshotListener(this@BaseModel)
         }
     }
 
@@ -159,7 +163,7 @@ abstract class BaseModel<T> : ModelContract<T>, OnCompleteListener<Void>,
         if (isDisconnected()) return
         GlobalScope.launch(Dispatchers.IO) {
             Log.i(javaClass.name, "querying data $id")
-            db().document(id).addSnapshotListener { snapshot, e ->
+            reference.document(id).addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     presenter.modelCallBack(
                         errorMessage(

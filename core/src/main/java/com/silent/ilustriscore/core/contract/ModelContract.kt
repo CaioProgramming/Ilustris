@@ -8,7 +8,6 @@ import com.silent.ilustriscore.core.presenter.BasePresenter
 interface ModelContract<T> where T : BaseBean {
 
     val path: String
-    val presenter: BasePresenter<T>
     fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): T
     fun deserializeDataSnapshot(dataSnapshot: QueryDocumentSnapshot): T
     fun addData(data: T, forcedID: String? = null)
