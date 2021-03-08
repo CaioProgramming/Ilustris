@@ -21,5 +21,4 @@ interface ViewContract<T> where  T : BaseBean {
     fun showData(data: T)
     fun getCallBack(dtoMessage: DTOMessage)
 
-
 }
