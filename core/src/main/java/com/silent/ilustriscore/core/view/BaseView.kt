@@ -1,5 +1,6 @@
 package com.silent.ilustriscore.core.view
 
+import android.content.Context
 import android.util.Log
 import com.creat.motiv.contract.ViewContract
 import com.silent.ilustriscore.core.bean.BaseBean
@@ -18,6 +19,8 @@ abstract class BaseView<T>(val useInit: Boolean = true) : ViewContract<T> where 
         }
         Log.println(priority, javaClass.simpleName, dtoMessage.message)
     }
+
+    override val context: Context by lazy { viewBind.root.context }
 
     override fun onLoading() {
         Log.i(javaClass.simpleName, "onLoading called")

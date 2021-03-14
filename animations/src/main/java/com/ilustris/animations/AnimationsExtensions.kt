@@ -6,53 +6,53 @@ import android.view.animation.AnimationUtils
 import com.silent.ilustriscore.core.utilities.gone
 import com.silent.ilustriscore.core.utilities.visible
 
-enum class ViewVisibility {
-    GONE, VISIBLE
-}
 
-fun View.fadeIn() = makeAnimation(this, R.anim.fade_in, ViewVisibility.VISIBLE)
 
-fun View.fadeOut() = makeAnimation(this, R.anim.fade_in, ViewVisibility.GONE)
+fun View.fadeIn() = makeAnimation(this, R.anim.fade_in, View.VISIBLE)
 
-fun View.repeatFade() = makeAnimation(this, R.anim.fade_in_repeat, ViewVisibility.VISIBLE)
+fun View.fadeOut() = makeAnimation(this, R.anim.fade_in, View.GONE)
 
-fun View.bounce() = makeAnimation(this, R.anim.bounce, ViewVisibility.VISIBLE)
+fun View.repeatFade() = makeAnimation(this, R.anim.fade_in_repeat, View.VISIBLE)
 
-fun View.popIn() = makeAnimation(this, R.anim.pop_in, ViewVisibility.VISIBLE)
+fun View.bounce() = makeAnimation(this, R.anim.bounce, View.VISIBLE)
 
-fun View.popOut() = makeAnimation(this, R.anim.pop_out, ViewVisibility.GONE)
+fun View.popIn() = makeAnimation(this, R.anim.pop_in, View.VISIBLE)
 
-fun View.repeatBounce() = makeAnimation(this, R.anim.bounce_repeat, ViewVisibility.VISIBLE)
+fun View.popOut() = makeAnimation(this, R.anim.pop_out, View.GONE)
 
-fun View.slideInRight() = makeAnimation(this, R.anim.slide_in_right, ViewVisibility.VISIBLE)
+fun View.repeatBounce() = makeAnimation(this, R.anim.bounce_repeat, View.VISIBLE)
 
-fun View.slideOutLeft() = makeAnimation(this, R.anim.slide_out_left, ViewVisibility.GONE)
+fun View.slideInRight() = makeAnimation(this, R.anim.slide_in_right, View.VISIBLE)
 
-fun View.flip() = makeAnimation(this, R.anim.flip, ViewVisibility.VISIBLE)
+fun View.slideOutLeft() = makeAnimation(this, R.anim.slide_out_left, View.GONE)
 
-fun View.slideUp() = makeAnimation(this, R.anim.slide_up, ViewVisibility.VISIBLE)
+fun View.flip() = makeAnimation(this, R.anim.flip, View.VISIBLE)
 
-fun View.slideDown() = makeAnimation(this, R.anim.slide_down, ViewVisibility.GONE)
+fun View.slideUp() = makeAnimation(this, R.anim.slide_up, View.GONE)
 
-fun View.zoomIn() = makeAnimation(this, R.anim.zoom_in, ViewVisibility.VISIBLE)
+fun View.slideInBottom() = makeAnimation(this, R.anim.slide_in_bottom, View.VISIBLE)
 
-fun View.zoomOut() = makeAnimation(this, R.anim.zoom_out, ViewVisibility.GONE)
+fun View.slideDown() = makeAnimation(this, R.anim.slide_down, View.GONE)
 
-fun View.rotate() = makeAnimation(this, R.anim.rotate, ViewVisibility.VISIBLE)
+fun View.zoomIn() = makeAnimation(this, R.anim.zoom_in, View.VISIBLE)
 
-fun View.move() = makeAnimation(this, R.anim.move, ViewVisibility.VISIBLE)
+fun View.zoomOut() = makeAnimation(this, R.anim.zoom_out, View.GONE)
 
-fun View.together() = makeAnimation(this, R.anim.together, ViewVisibility.GONE)
+fun View.rotate() = makeAnimation(this, R.anim.rotate, View.VISIBLE)
 
-private fun makeAnimation(view: View, animation: Int, viewVisibility: ViewVisibility) {
+fun View.move() = makeAnimation(this, R.anim.move, View.VISIBLE)
+
+fun View.together() = makeAnimation(this, R.anim.together, View.GONE)
+
+private fun makeAnimation(view: View, animation: Int, viewVisibility: Int) {
     val anim = AnimationUtils.loadAnimation(view.context, animation)
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationStart(p0: Animation?) {
-            if (viewVisibility == ViewVisibility.VISIBLE) view.visible()
+            if (viewVisibility == View.VISIBLE) view.visible()
         }
 
         override fun onAnimationEnd(p0: Animation?) {
-            if (viewVisibility == ViewVisibility.GONE) {
+            if (viewVisibility == View.GONE) {
                 view.gone()
             }
         }

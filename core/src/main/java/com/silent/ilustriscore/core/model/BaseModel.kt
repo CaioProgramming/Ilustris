@@ -24,7 +24,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
     OnCompleteListener<Void>,
     EventListener<QuerySnapshot> where T : BaseBean {
 
-    private val reference: CollectionReference by lazy {
+    protected val reference: CollectionReference by lazy {
         FirebaseFirestore.getInstance().collection(path)
     }
 
