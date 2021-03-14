@@ -3,8 +3,6 @@ package com.ilustris.animations
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import com.silent.ilustriscore.core.utilities.gone
-import com.silent.ilustriscore.core.utilities.visible
 
 
 
@@ -48,12 +46,12 @@ private fun makeAnimation(view: View, animation: Int, viewVisibility: Int) {
     val anim = AnimationUtils.loadAnimation(view.context, animation)
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationStart(p0: Animation?) {
-            if (viewVisibility == View.VISIBLE) view.visible()
+            if (viewVisibility == View.VISIBLE) view.visibility = viewVisibility
         }
 
         override fun onAnimationEnd(p0: Animation?) {
             if (viewVisibility == View.GONE) {
-                view.gone()
+                view.visibility = viewVisibility
             }
         }
 
