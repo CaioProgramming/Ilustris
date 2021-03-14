@@ -22,11 +22,11 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         model.getAllData()
     }
 
-     fun loadSingleData(key: String) {
-         view.onLoading()
-         model.getSingleData(key)
+    override fun loadSingleData(key: String) {
+        view.onLoading()
+        model.getSingleData(key)
 
-     }
+    }
 
     override fun saveData(data: T, forcedID: String?) {
         view.onLoading()
