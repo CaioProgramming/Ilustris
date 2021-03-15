@@ -5,9 +5,11 @@ import android.util.Log
 import com.creat.motiv.contract.ViewContract
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.model.DTOMessage
+import com.silent.ilustriscore.core.model.DataException
+import com.silent.ilustriscore.core.model.ErrorType
 import com.silent.ilustriscore.core.utilities.MessageType
 
-abstract class BaseView<T>(val useInit: Boolean = true) : ViewContract<T> where  T : BaseBean {
+abstract class BaseView<T> : ViewContract<T> where  T : BaseBean {
 
 
     override fun getCallBack(dtoMessage: DTOMessage) {
@@ -32,20 +34,18 @@ abstract class BaseView<T>(val useInit: Boolean = true) : ViewContract<T> where 
 
     override fun showListData(list: List<T>) {
         Log.i(javaClass.simpleName, "showListData: $list")
-        onLoadFinish()
     }
 
     override fun showData(data: T) {
         Log.i(javaClass.simpleName, "showData: $data")
-        onLoadFinish()
     }
 
     override fun success(message: String) {
         Log.d(javaClass.simpleName, "success: $message")
     }
 
-    override fun error(message: String) {
-        Log.e(javaClass.simpleName, "error: $message")
+    override fun error(dataException: DataException) {
+        Log.e(javaClass.simpleName, "error: $dataException")
     }
 
 }

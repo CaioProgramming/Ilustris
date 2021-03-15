@@ -11,7 +11,6 @@ import com.google.firebase.firestore.EventListener
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ModelContract
 import com.silent.ilustriscore.core.presenter.BasePresenter
-import com.silent.ilustriscore.core.utilities.ErrorType
 import com.silent.ilustriscore.core.utilities.MessageType
 import com.silent.ilustriscore.core.utilities.OperationType
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     )
                 )
             } else {
-                presenter.modelCallBack(errorMessage("Ocorreu um erro ao salvar os dados de $data \n ${it.exception?.message} "))
+                throw DataException("Erro aos salvar dados em $path", ErrorType.NOT_FOUND)
             }
         }
     }
@@ -57,12 +56,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     )
                 )
             } else {
-                presenter.modelCallBack(
-                    errorMessage(
-                        "Ocorreu um erro ao atualizar os dados de $data \n ${it.exception?.message} ",
-                        ErrorType.UPDATE_ERROR
-                    )
-                )
+                throw DataException("Erro aos salvar dados em $path", ErrorType.UPDATE)
             }
         }
     }
@@ -77,10 +71,6 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         }
     }
 
-    private fun errorMessage(
-        message: String = "Ocorreu um erro ao processar",
-        errorType: ErrorType = ErrorType.UNKNOW
-    ): DTOMessage = DTOMessage(message, MessageType.ERROR, errorType)
 
     private fun successMessage(
         message: String = "Operação concluída com sucesso",
@@ -93,94 +83,85 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
     private fun infoMessage(message: String): DTOMessage = DTOMessage(message, MessageType.INFO)
 
     override fun editData(data: T) {
-        if (isDisconnected()) return
+        isDisconnected()
         Log.i(javaClass.simpleName, "editing: $data")
         reference.document(data.id).set(data).addOnCompleteListener(updateComplete(data))
     }
 
     fun editField(data: Any, id: String, field: String) {
-        if (isDisconnected()) return
+        isDisconnected()
         GlobalScope.launch {
             reference.document(id).update(field, data).addOnCompleteListener(this@BaseModel)
         }
 
     }
 
-    private fun isDisconnected(): Boolean {
+    private fun isDisconnected() {
         if (currentUser == null) {
-            presenter.modelCallBack(errorMessage("Usuário desconectado", ErrorType.DISCONNECTED))
-            return true
+            throw DataException("Usuário desconectado", ErrorType.DISCONNECTED)
         }
-        return false
     }
 
     override fun deleteData(id: String) {
-        if (isDisconnected()) return
+        isDisconnected()
         reference.document(id).delete().addOnCompleteListener(this@BaseModel)
     }
 
     override fun query(query: String, field: String) {
-        if (isDisconnected()) return
+        isDisconnected()
         presenter.modelCallBack(infoMessage("Buscando por $query em $field na collection $path"))
-        reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
-            .addSnapshotListener(this)
+        reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).addSnapshotListener(this)
     }
 
     fun explicitSearch(query: String, field: String) {
-        if (isDisconnected()) return
+        isDisconnected()
         presenter.modelCallBack(infoMessage("Buscando por $query em $field na collection $path"))
         reference.whereEqualTo(field, query).addSnapshotListener(this)
     }
 
+    private fun handleDataExceptionError(error: FirebaseFirestoreException) {
+        throw DataException("Ocorreu um erro ao obter os dados $error", ErrorType.UNKNOWN)
+
+    }
+
     override fun onEvent(value: QuerySnapshot?, error: FirebaseFirestoreException?) {
         GlobalScope.launch(Dispatchers.IO) {
-            if (error != null) {
-                presenter.modelCallBack(errorMessage("Erro ao receber dados ${error.message}"))
-                return@launch
+            error?.let {
+                handleDataExceptionError(it)
             }
             val dataList: ArrayList<T> = ArrayList()
             for (doc in value!!) {
                 deserializeDataSnapshot(doc).let { dataList.add(it) }
             }
             presenter.modelCallBack(
-                successMessage(
-                    "Dados recebidos: $dataList",
-                    OperationType.DATA_RETRIEVED
-                )
+                    successMessage(
+                            "Dados recebidos: $dataList",
+                            OperationType.DATA_RETRIEVED
+                    )
             )
             presenter.onDataRetrieve(dataList)
         }
     }
 
     override fun getAllData() {
-        if (isDisconnected()) return
+        isDisconnected()
         GlobalScope.launch(Dispatchers.IO) {
             reference.addSnapshotListener(this@BaseModel)
         }
     }
 
     override fun getSingleData(id: String) {
-        if (isDisconnected()) return
+        isDisconnected()
         GlobalScope.launch(Dispatchers.IO) {
             Log.i(javaClass.name, "querying data $id")
-            reference.document(id).addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    presenter.modelCallBack(
-                        errorMessage(
-                            e.message
-                                ?: "Ocorreu um erro ao obter dados de $id"
-                        )
-                    )
+            reference.document(id).addSnapshotListener { snapshot, error ->
+                error?.let {
+                    handleDataExceptionError(it)
                 }
                 if (snapshot != null && snapshot.exists()) {
                     deserializeDataSnapshot(snapshot).let { presenter.onSingleData(it) }
                 } else {
-                    presenter.modelCallBack(
-                        errorMessage(
-                            "Dados não encontrados para $id",
-                            ErrorType.DATANOTFOUND
-                        )
-                    )
+                    throw DataException("Erro ao encontrar $id em $path", ErrorType.NOT_FOUND)
                 }
             }
         }
@@ -192,17 +173,13 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         if (task.isSuccessful) {
             presenter.modelCallBack(DTOMessage("Operação concluída", MessageType.SUCCESS))
         } else {
-            presenter.modelCallBack(
-                DTOMessage(
-                    "Ocorreu um erro ao processar\n->${task.exception?.message}",
-                    MessageType.ERROR
-                )
-            )
+            throw DataException("Ocorreu um erro ao processar\n->${task.exception?.message}")
+
         }
     }
 
     fun deleteAllData(dataList: List<T>) {
-        if (isDisconnected()) return
+        isDisconnected()
         GlobalScope.launch {
             try {
                 for (data in dataList) {
@@ -211,12 +188,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     }
                 }
             } catch (e: Exception) {
-                presenter.modelCallBack(
-                    DTOMessage(
-                        "Ocorreu um erro ${e.message}",
-                        MessageType.ERROR
-                    )
-                )
+                throw DataException("Ocorreu um erro ao deletar os dados $e", ErrorType.UPDATE)
             }
         }
     }

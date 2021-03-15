@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.PresenterContract
 import com.silent.ilustriscore.core.model.DTOMessage
+import com.silent.ilustriscore.core.model.DataException
 import com.silent.ilustriscore.core.utilities.MessageType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -23,41 +24,85 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
     }
 
     override fun loadSingleData(key: String) {
-        view.onLoading()
-        model.getSingleData(key)
-
+        try {
+            view.onLoading()
+            model.getSingleData(key)
+        } catch (e: Exception) {
+            view.error(DataException(e.message))
+        } catch (data: DataException) {
+            view.error(data)
+        } finally {
+            view.onLoadFinish()
+        }
     }
 
     override fun saveData(data: T, forcedID: String?) {
-        view.onLoading()
-        if (forcedID.isNullOrBlank()) {
-            model.addData(data)
-        } else {
-            model.addData(data, forcedID)
+        try {
+            view.onLoading()
+            if (forcedID.isNullOrBlank()) {
+                model.addData(data)
+            } else {
+                model.addData(data, forcedID)
+            }
+        } catch (e: Exception) {
+            view.error(DataException(e.message))
+        } catch (d: DataException) {
+            view.error(d)
+        } finally {
+            view.onLoadFinish()
         }
-        view.onLoadFinish()
     }
 
     override fun updateData(data: T) {
-        model.addData(data, data.id)
+        try {
+            model.addData(data, data.id)
+        } catch (e: Exception) {
+
+        } catch (d: DataException) {
+            view.error(d)
+        } finally {
+            view.onLoadFinish()
+        }
+
     }
 
     override fun deleteData(data: T) {
-        model.deleteData(data.id)
+        try {
+            view.onLoading()
+            model.deleteData(data.id)
+        } catch (e: Exception) {
+            view.error(DataException.fromException(e))
+        } finally {
+            view.onLoadFinish()
+        }
     }
 
     override fun onDataRetrieve(data: List<T>) {
         GlobalScope.launch(Dispatchers.Main) {
-            view.showListData(data)
-            view.onLoadFinish()
+            try {
+                view.showListData(data)
+            } catch (e: Exception) {
+                view.error(DataException.fromException(e))
+            } catch (d: DataException) {
+                view.error(d)
+            } finally {
+                view.onLoadFinish()
+            }
         }
 
     }
 
     override fun onSingleData(data: T) {
         GlobalScope.launch(Dispatchers.Main) {
-            view.showData(data)
-            view.onLoadFinish()
+            try {
+                view.showData(data)
+            } catch (e: Exception) {
+                view.error(DataException.fromException(e))
+            } catch (d: DataException) {
+                view.error(d)
+            } finally {
+                view.onLoadFinish()
+            }
         }
 
     }
@@ -76,8 +121,16 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
     }
 
     override fun queryData(value: String, field: String) {
-        view.onLoading()
-        model.query(value, field)
+        try {
+            view.onLoading()
+            model.query(value, field)
+        } catch (e: Exception) {
+            view.error(DataException.fromException(e))
+        } catch (d: DataException) {
+            view.error(d)
+        } finally {
+            view.onLoadFinish()
+        }
     }
 
     fun findPreciseData(value: String, field: String) {

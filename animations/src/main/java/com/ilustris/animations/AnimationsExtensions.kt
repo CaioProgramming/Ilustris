@@ -8,7 +8,7 @@ import android.view.animation.AnimationUtils
 
 fun View.fadeIn() = makeAnimation(this, R.anim.fade_in, View.VISIBLE)
 
-fun View.fadeOut() = makeAnimation(this, R.anim.fade_in, View.GONE)
+fun View.fadeOut() = makeAnimation(this, R.anim.fade_out, View.GONE)
 
 fun View.repeatFade() = makeAnimation(this, R.anim.fade_in_repeat, View.VISIBLE)
 

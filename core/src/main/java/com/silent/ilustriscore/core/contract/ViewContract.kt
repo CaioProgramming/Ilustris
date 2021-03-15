@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.databinding.ViewDataBinding
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.model.DTOMessage
+import com.silent.ilustriscore.core.model.DataException
+import com.silent.ilustriscore.core.model.ErrorType
 import com.silent.ilustriscore.core.presenter.BasePresenter
 
 
@@ -14,7 +16,7 @@ interface ViewContract<T> where  T : BaseBean {
     val presenter: BasePresenter<T>
     fun onLoading()
     fun onLoadFinish()
-    fun error(message: String)
+    fun error(dataException: DataException)
     fun success(message: String)
     fun initView()
     fun showListData(list: List<T>)
