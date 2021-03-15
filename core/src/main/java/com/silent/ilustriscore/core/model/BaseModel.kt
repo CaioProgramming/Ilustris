@@ -41,7 +41,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     )
                 )
             } else {
-                throw DataException("Erro aos salvar dados em $path", ErrorType.SAVE)
+                GlobalScope.launch(Dispatchers.Main) {
+                    throw DataException("Erro aos salvar dados em $path", ErrorType.SAVE)
+                }
             }
         }
     }
@@ -56,7 +58,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                         )
                 )
             } else {
-                throw DataException("Erro aos salvar dados em $path", ErrorType.UPDATE)
+                GlobalScope.launch(Dispatchers.Main) {
+                    throw DataException("Erro aos salvar dados em $path", ErrorType.UPDATE)
+                }
             }
         }
     }
@@ -71,7 +75,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                         )
                 )
             } else {
-                throw DataException("Erro aos deletar ($data) em $path", ErrorType.DELETE)
+                GlobalScope.launch(Dispatchers.Main) {
+                    throw DataException("Erro aos deletar ($data) em $path", ErrorType.DELETE)
+                }
             }
         }
     }
@@ -113,7 +119,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
 
     private fun isDisconnected() {
         if (currentUser == null) {
-            throw DataException("Usuário desconectado", ErrorType.DISCONNECTED)
+            GlobalScope.launch(Dispatchers.Main) {
+                throw DataException("Usuário desconectado", ErrorType.DISCONNECTED)
+            }
         }
     }
 
@@ -135,8 +143,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
     }
 
     private fun handleDataExceptionError(error: FirebaseFirestoreException) {
-        throw DataException("Ocorreu um erro ao obter os dados $error", ErrorType.UNKNOWN)
-
+        GlobalScope.launch(Dispatchers.Main) {
+            throw DataException("Ocorreu um erro ao obter os dados $error", ErrorType.UNKNOWN)
+        }
     }
 
     override fun onEvent(value: QuerySnapshot?, error: FirebaseFirestoreException?) {
@@ -188,7 +197,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         if (task.isSuccessful) {
             presenter.modelCallBack(DTOMessage("Operação concluída", MessageType.SUCCESS))
         } else {
-            throw DataException("Ocorreu um erro ao processar\n->${task.exception?.message}")
+            GlobalScope.launch(Dispatchers.Main) {
+                throw DataException("Ocorreu um erro ao processar\n->${task.exception?.message}")
+            }
 
         }
     }
@@ -203,7 +214,9 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     }
                 }
             } catch (e: Exception) {
-                throw DataException("Ocorreu um erro ao deletar os dados $e", ErrorType.UPDATE)
+                GlobalScope.launch(Dispatchers.Main) {
+                    throw DataException("Ocorreu um erro ao deletar os dados $e", ErrorType.UPDATE)
+                }
             }
         }
     }

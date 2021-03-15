@@ -57,7 +57,7 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         try {
             model.addData(data, data.id)
         } catch (e: Exception) {
-
+            view.error(DataException.fromException(e))
         } catch (d: DataException) {
             view.error(d)
         } finally {
