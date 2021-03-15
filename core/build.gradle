@@ -37,38 +37,38 @@ android {
 
 dependencies {
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.3'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.3'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.0"
-    implementation "androidx.fragment:fragment-ktx:1.3.0"
-    implementation 'com.google.android.material:material:1.4.0-alpha01'
-    implementation 'com.google.android.play:core:1.10.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2-native-mt'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.21'
-    implementation 'com.github.mcginty:material-colors:1.1.0'
-    implementation "androidx.core:core-ktx:1.3.2"
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    api "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
+    api 'androidx.core:core-ktx:1.3.2'
+    api 'androidx.appcompat:appcompat:1.2.0'
+    api 'androidx.constraintlayout:constraintlayout:2.0.4'
+    api 'androidx.recyclerview:recyclerview:1.1.0'
+    api 'androidx.cardview:cardview:1.0.0'
+    api 'androidx.navigation:navigation-ui-ktx:2.3.3'
+    api 'androidx.navigation:navigation-fragment-ktx:2.3.3'
+    api "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0"
+    api "androidx.lifecycle:lifecycle-runtime-ktx:2.3.0"
+    api "androidx.fragment:fragment-ktx:1.3.0"
+    api 'com.google.android.material:material:1.4.0-alpha01'
+    api 'com.google.android.play:core:1.10.0'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2-native-mt'
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.21'
+    api 'com.github.mcginty:material-colors:1.1.0'
+    api "androidx.core:core-ktx:1.3.2"
+    api 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.2-native-mt'
-    implementation platform('com.google.firebase:firebase-bom:25.12.0')
-    implementation 'com.google.firebase:firebase-firestore-ktx'
-    implementation 'com.google.firebase:firebase-database-ktx'
-    implementation 'com.google.firebase:firebase-storage-ktx'
-    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
-    implementation 'com.google.firebase:firebase-appindexing:19.2.0'
-    implementation 'com.google.firebase:firebase-auth:20.0.3'
-    implementation 'com.google.firebase:firebase-database:19.6.0'
-    implementation 'com.firebaseui:firebase-ui-database:2.1.0'
-    implementation 'com.google.firebase:firebase-storage:19.2.1'
-    implementation 'com.google.firebase:firebase-core:18.0.2'
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.2-native-mt'
+    api platform('com.google.firebase:firebase-bom:25.12.0')
+    api 'com.google.firebase:firebase-firestore-ktx'
+    api 'com.google.firebase:firebase-database-ktx'
+    api 'com.google.firebase:firebase-storage-ktx'
+    api 'com.firebaseui:firebase-ui-auth:4.3.1'
+    api 'com.google.firebase:firebase-appindexing:19.2.0'
+    api 'com.google.firebase:firebase-auth:20.0.3'
+    api 'com.google.firebase:firebase-database:19.6.0'
+    api 'com.firebaseui:firebase-ui-database:2.1.0'
+    api 'com.google.firebase:firebase-storage:19.2.1'
+    api 'com.google.firebase:firebase-core:18.0.2'
+    api 'com.google.firebase:firebase-messaging:21.0.1'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
