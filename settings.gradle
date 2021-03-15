@@ -1,3 +1,4 @@
+include ':dependencies'
 include ':animations'
 include ':core'
 rootProject.name = "Ilustris"
