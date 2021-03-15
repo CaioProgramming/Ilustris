@@ -41,7 +41,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     )
                 )
             } else {
-                throw DataException("Erro aos salvar dados em $path", ErrorType.NOT_FOUND)
+                throw DataException("Erro aos salvar dados em $path", ErrorType.SAVE)
             }
         }
     }
@@ -50,13 +50,28 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         return OnCompleteListener {
             if (it.isSuccessful) {
                 presenter.modelCallBack(
-                    successMessage(
-                        "Dados atualizados com sucesso: $data",
-                        OperationType.DATA_UPDATED
-                    )
+                        successMessage(
+                                "Dados atualizados com sucesso: $data",
+                                OperationType.DATA_UPDATED
+                        )
                 )
             } else {
                 throw DataException("Erro aos salvar dados em $path", ErrorType.UPDATE)
+            }
+        }
+    }
+
+    private fun deleteComplete(data: Any): OnCompleteListener<Void> {
+        return OnCompleteListener {
+            if (it.isSuccessful) {
+                presenter.modelCallBack(
+                        successMessage(
+                                "Dados removidos com sucesso: $data",
+                                OperationType.DELETE
+                        )
+                )
+            } else {
+                throw DataException("Erro aos deletar ($data) em $path", ErrorType.DELETE)
             }
         }
     }
@@ -104,7 +119,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
 
     override fun deleteData(id: String) {
         isDisconnected()
-        reference.document(id).delete().addOnCompleteListener(this@BaseModel)
+        reference.document(id).delete().addOnCompleteListener(deleteComplete(id))
     }
 
     override fun query(query: String, field: String) {
