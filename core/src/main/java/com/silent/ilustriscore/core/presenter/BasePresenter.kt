@@ -27,10 +27,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         try {
             view.onLoading()
             model.getSingleData(key)
-        } catch (e: Exception) {
-            view.error(DataException(e.message))
         } catch (data: DataException) {
             view.error(data)
+        } catch (e: Exception) {
+            view.error(DataException(e.message))
         } finally {
             view.onLoadFinish()
         }
@@ -44,10 +44,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
             } else {
                 model.addData(data, forcedID)
             }
-        } catch (e: Exception) {
-            view.error(DataException(e.message))
         } catch (d: DataException) {
             view.error(d)
+        } catch (e: Exception) {
+            view.error(DataException(e.message))
         } finally {
             view.onLoadFinish()
         }
@@ -56,10 +56,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
     override fun updateData(data: T) {
         try {
             model.addData(data, data.id)
-        } catch (e: Exception) {
-            view.error(DataException.fromException(e))
         } catch (d: DataException) {
             view.error(d)
+        } catch (e: Exception) {
+            view.error(DataException.fromException(e))
         } finally {
             view.onLoadFinish()
         }
@@ -70,6 +70,8 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         try {
             view.onLoading()
             model.deleteData(data.id)
+        } catch (d: DataException) {
+            view.error(d)
         } catch (e: Exception) {
             view.error(DataException.fromException(e))
         } finally {
@@ -81,10 +83,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         GlobalScope.launch(Dispatchers.Main) {
             try {
                 view.showListData(data)
-            } catch (e: Exception) {
-                view.error(DataException.fromException(e))
             } catch (d: DataException) {
                 view.error(d)
+            } catch (e: Exception) {
+                view.error(DataException.fromException(e))
             } finally {
                 view.onLoadFinish()
             }
@@ -96,10 +98,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         GlobalScope.launch(Dispatchers.Main) {
             try {
                 view.showData(data)
-            } catch (e: Exception) {
-                view.error(DataException.fromException(e))
             } catch (d: DataException) {
                 view.error(d)
+            } catch (e: Exception) {
+                view.error(DataException.fromException(e))
             } finally {
                 view.onLoadFinish()
             }
@@ -124,10 +126,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         try {
             view.onLoading()
             model.query(value, field)
-        } catch (e: Exception) {
-            view.error(DataException.fromException(e))
         } catch (d: DataException) {
             view.error(d)
+        } catch (e: Exception) {
+            view.error(DataException.fromException(e))
         } finally {
             view.onLoadFinish()
         }
