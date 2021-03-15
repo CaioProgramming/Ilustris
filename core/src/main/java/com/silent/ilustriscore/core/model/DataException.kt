@@ -8,6 +8,14 @@ class DataException(override val message: String? = "Unknown error", val code: E
         fun fromException(e: Exception): DataException {
             return DataException(e.message)
         }
+
+        fun fromThrowable(t: Throwable): DataException {
+            if (t is DataException) {
+                return t
+            } else {
+                return fromException(t as Exception)
+            }
+        }
     }
 
 }

@@ -7,6 +7,7 @@ import com.silent.ilustriscore.core.contract.PresenterContract
 import com.silent.ilustriscore.core.model.DTOMessage
 import com.silent.ilustriscore.core.model.DataException
 import com.silent.ilustriscore.core.utilities.MessageType
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -16,6 +17,11 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
 
     val user by lazy {
         model.currentUser
+    }
+
+    val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        Log.e(javaClass.simpleName, "an error ocurred: $throwable ")
+        view.error(DataException.fromThrowable(throwable))
     }
 
     fun loadData() {
