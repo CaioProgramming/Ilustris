@@ -41,7 +41,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     )
                 )
             } else {
-                    throw DataException("Erro aos salvar dados em $path", ErrorType.SAVE)
+                presenter.errorCallBack(errorMessage("Ocorreu um erro ao salvar os dados de $data \n ${it.exception?.message} "))
             }
         }
     }
@@ -56,28 +56,18 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                         )
                 )
             } else {
-                    throw DataException("Erro aos salvar dados em $path", ErrorType.UPDATE)
-            }
-        }
-    }
-
-    private fun deleteComplete(data: Any): OnCompleteListener<Void> {
-        return OnCompleteListener {
-            if (it.isSuccessful) {
-                presenter.modelCallBack(
-                        successMessage(
-                                "Dados removidos com sucesso: $data",
-                                OperationType.DELETE
+                presenter.errorCallBack(
+                        errorMessage(
+                                "Ocorreu um erro ao atualizar os dados de $data \n ${it.exception?.message} ",
+                                ErrorType.UPDATE
                         )
                 )
-            } else {
-                    throw DataException("Erro aos deletar ($data) em $path", ErrorType.DELETE)
             }
         }
     }
 
     override fun addData(data: T, forcedID: String?) {
-        GlobalScope.launch(presenter.exceptionHandler) {
+        GlobalScope.launch {
             if (forcedID.isNullOrEmpty()) {
                 reference.add(data).addOnCompleteListener(saveComplete(data))
             } else {
@@ -86,62 +76,66 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         }
     }
 
+    private fun errorMessage(
+            message: String = "Ocorreu um erro ao processar",
+            errorType: ErrorType = ErrorType.UNKNOWN
+    ): DataException = DataException(message, errorType)
 
     private fun successMessage(
-        message: String = "Operação concluída com sucesso",
-        operationType: OperationType
+            message: String = "Operação concluída com sucesso",
+            operationType: OperationType
     ): DTOMessage = DTOMessage(message, MessageType.SUCCESS, operationType = operationType)
 
     fun warningMessage(message: String = "Um erro inesperado aconteceu, recomenda-se verificar"): DTOMessage =
-        DTOMessage(message, MessageType.WARNING)
+            DTOMessage(message, MessageType.WARNING)
 
     private fun infoMessage(message: String): DTOMessage = DTOMessage(message, MessageType.INFO)
 
     override fun editData(data: T) {
-        isDisconnected()
+        if (isDisconnected()) return
         Log.i(javaClass.simpleName, "editing: $data")
         reference.document(data.id).set(data).addOnCompleteListener(updateComplete(data))
     }
 
     fun editField(data: Any, id: String, field: String) {
-        isDisconnected()
+        if (isDisconnected()) return
         GlobalScope.launch {
             reference.document(id).update(field, data).addOnCompleteListener(this@BaseModel)
         }
 
     }
 
-    private fun isDisconnected() {
+    private fun isDisconnected(): Boolean {
         if (currentUser == null) {
-                throw DataException("Usuário desconectado", ErrorType.DISCONNECTED)
+            presenter.errorCallBack(DataException(message = "Usuário desconectado", code = ErrorType.DISCONNECTED))
+            return true
         }
+        return false
     }
 
     override fun deleteData(id: String) {
-        isDisconnected()
-        reference.document(id).delete().addOnCompleteListener(deleteComplete(id))
+        if (isDisconnected()) return
+        reference.document(id).delete().addOnCompleteListener(this@BaseModel)
     }
 
     override fun query(query: String, field: String) {
-        isDisconnected()
+        if (isDisconnected()) return
         presenter.modelCallBack(infoMessage("Buscando por $query em $field na collection $path"))
-        reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).addSnapshotListener(this)
+        reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
+                .addSnapshotListener(this)
     }
 
     fun explicitSearch(query: String, field: String) {
-        isDisconnected()
+        if (isDisconnected()) return
         presenter.modelCallBack(infoMessage("Buscando por $query em $field na collection $path"))
         reference.whereEqualTo(field, query).addSnapshotListener(this)
     }
 
-    private fun handleDataExceptionError(error: FirebaseFirestoreException) {
-            throw DataException("Ocorreu um erro ao obter os dados $error", ErrorType.UNKNOWN)
-    }
-
     override fun onEvent(value: QuerySnapshot?, error: FirebaseFirestoreException?) {
-        GlobalScope.launch(presenter.exceptionHandler) {
-            error?.let {
-                handleDataExceptionError(it)
+        GlobalScope.launch(Dispatchers.IO) {
+            if (error != null) {
+                presenter.errorCallBack(errorMessage("Erro ao receber dados ${error.message}"))
+                return@launch
             }
             val dataList: ArrayList<T> = ArrayList()
             for (doc in value!!) {
@@ -158,24 +152,33 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
     }
 
     override fun getAllData() {
-        isDisconnected()
-        GlobalScope.launch(presenter.exceptionHandler) {
+        if (isDisconnected()) return
+        GlobalScope.launch(Dispatchers.IO) {
             reference.addSnapshotListener(this@BaseModel)
         }
     }
 
     override fun getSingleData(id: String) {
-        isDisconnected()
-        GlobalScope.launch(presenter.exceptionHandler) {
+        if (isDisconnected()) return
+        GlobalScope.launch(Dispatchers.IO) {
             Log.i(javaClass.name, "querying data $id")
-            reference.document(id).addSnapshotListener { snapshot, error ->
-                error?.let {
-                    handleDataExceptionError(it)
+            reference.document(id).addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    presenter.errorCallBack(
+                            errorMessage(
+                                    e.message
+                                            ?: "Ocorreu um erro ao obter dados de $id", ErrorType.NOT_FOUND)
+                    )
                 }
                 if (snapshot != null && snapshot.exists()) {
                     deserializeDataSnapshot(snapshot).let { presenter.onSingleData(it) }
                 } else {
-                    throw DataException("Erro ao encontrar $id em $path", ErrorType.NOT_FOUND)
+                    presenter.errorCallBack(
+                            errorMessage(
+                                    "Dados não encontrados para $id",
+                                    ErrorType.NOT_FOUND
+                            )
+                    )
                 }
             }
         }
@@ -187,16 +190,15 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         if (task.isSuccessful) {
             presenter.modelCallBack(DTOMessage("Operação concluída", MessageType.SUCCESS))
         } else {
-            GlobalScope.launch(Dispatchers.Main) {
-                throw DataException("Ocorreu um erro ao processar\n->${task.exception?.message}")
-            }
-
+            presenter.errorCallBack(
+                    errorMessage("Ocorreu um erro ao processar\n->${task.exception?.message}")
+            )
         }
     }
 
     fun deleteAllData(dataList: List<T>) {
-        isDisconnected()
-        GlobalScope.launch(presenter.exceptionHandler) {
+        if (isDisconnected()) return
+        GlobalScope.launch {
             try {
                 for (data in dataList) {
                     if (data.id.isNotEmpty()) {
@@ -204,9 +206,12 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
                     }
                 }
             } catch (e: Exception) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    throw DataException("Ocorreu um erro ao deletar os dados $e", ErrorType.UPDATE)
-                }
+                presenter.errorCallBack(
+                        errorMessage(
+                                "Ocorreu um erro ${e.message}",
+                                ErrorType.DELETE
+                        )
+                )
             }
         }
     }

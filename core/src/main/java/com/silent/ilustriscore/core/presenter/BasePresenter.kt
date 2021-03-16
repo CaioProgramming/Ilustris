@@ -7,7 +7,6 @@ import com.silent.ilustriscore.core.contract.PresenterContract
 import com.silent.ilustriscore.core.model.DTOMessage
 import com.silent.ilustriscore.core.model.DataException
 import com.silent.ilustriscore.core.utilities.MessageType
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,98 +18,47 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         model.currentUser
     }
 
-    val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        Log.e(javaClass.simpleName, "an error ocurred: $throwable ")
-        view.error(DataException.fromThrowable(throwable))
-    }
-
     fun loadData() {
         view.onLoading()
         model.getAllData()
     }
 
     override fun loadSingleData(key: String) {
-        try {
-            view.onLoading()
-            model.getSingleData(key)
-        } catch (data: DataException) {
-            view.error(data)
-        } catch (e: Exception) {
-            view.error(DataException(e.message))
-        } finally {
-            view.onLoadFinish()
-        }
+        view.onLoading()
+        model.getSingleData(key)
+
     }
 
     override fun saveData(data: T, forcedID: String?) {
-        try {
-            view.onLoading()
-            if (forcedID.isNullOrBlank()) {
-                model.addData(data)
-            } else {
-                model.addData(data, forcedID)
-            }
-        } catch (d: DataException) {
-            view.error(d)
-        } catch (e: Exception) {
-            view.error(DataException(e.message))
-        } finally {
-            view.onLoadFinish()
+        view.onLoading()
+        if (forcedID.isNullOrBlank()) {
+            model.addData(data)
+        } else {
+            model.addData(data, forcedID)
         }
+        view.onLoadFinish()
     }
 
     override fun updateData(data: T) {
-        try {
-            model.addData(data, data.id)
-        } catch (d: DataException) {
-            view.error(d)
-        } catch (e: Exception) {
-            view.error(DataException.fromException(e))
-        } finally {
-            view.onLoadFinish()
-        }
-
+        model.addData(data, data.id)
     }
 
     override fun deleteData(data: T) {
-        try {
-            view.onLoading()
-            model.deleteData(data.id)
-        } catch (d: DataException) {
-            view.error(d)
-        } catch (e: Exception) {
-            view.error(DataException.fromException(e))
-        } finally {
-            view.onLoadFinish()
-        }
+        model.deleteData(data.id)
     }
 
     override fun onDataRetrieve(data: List<T>) {
         GlobalScope.launch(Dispatchers.Main) {
-            try {
-                view.showListData(data)
-            } catch (d: DataException) {
-                view.error(d)
-            } catch (e: Exception) {
-                view.error(DataException.fromException(e))
-            } finally {
-                view.onLoadFinish()
-            }
+            view.showListData(data)
+            view.onLoadFinish()
         }
 
     }
 
     override fun onSingleData(data: T) {
         GlobalScope.launch(Dispatchers.Main) {
-            try {
-                view.showData(data)
-            } catch (d: DataException) {
-                view.error(d)
-            } catch (e: Exception) {
-                view.error(DataException.fromException(e))
-            } finally {
-                view.onLoadFinish()
-            }
+            view.showData(data)
+            view.onLoadFinish()
         }
 
     }
@@ -128,17 +76,13 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         }
     }
 
+    override fun errorCallBack(dataException: DataException) {
+        Log.i(javaClass.simpleName, "errorCallBack: $dataException")
+    }
+
     override fun queryData(value: String, field: String) {
-        try {
-            view.onLoading()
-            model.query(value, field)
-        } catch (d: DataException) {
-            view.error(d)
-        } catch (e: Exception) {
-            view.error(DataException.fromException(e))
-        } finally {
-            view.onLoadFinish()
-        }
+        view.onLoading()
+        model.query(value, field)
     }
 
     fun findPreciseData(value: String, field: String) {
