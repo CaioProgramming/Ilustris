@@ -77,7 +77,7 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
     }
 
     override fun errorCallBack(dataException: DataException) {
-        Log.i(javaClass.simpleName, "errorCallBack: $dataException")
+        Log.e(javaClass.simpleName, "errorCallBack: $dataException")
         view.error(dataException)
     }
 
