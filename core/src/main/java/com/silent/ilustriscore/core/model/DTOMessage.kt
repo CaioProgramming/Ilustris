@@ -6,5 +6,5 @@ import com.silent.ilustriscore.core.utilities.OperationType
 data class DTOMessage(
     val message: String,
     val type: MessageType,
-    val operationType: OperationType = OperationType.UNKNOW
+    val operationType: OperationType = OperationType.UNKNOWN
 )

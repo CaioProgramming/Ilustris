@@ -2,11 +2,10 @@ package com.silent.ilustriscore.core.view
 
 import android.content.Context
 import android.util.Log
-import com.creat.motiv.contract.ViewContract
+import com.silent.ilustriscore.core.contract.ViewContract
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.model.DTOMessage
 import com.silent.ilustriscore.core.model.DataException
-import com.silent.ilustriscore.core.model.ErrorType
 import com.silent.ilustriscore.core.utilities.MessageType
 
 abstract class BaseView<T> : ViewContract<T> where  T : BaseBean {

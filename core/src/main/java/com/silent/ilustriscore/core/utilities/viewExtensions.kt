@@ -1,7 +1,5 @@
 package com.silent.ilustriscore.core.utilities
 
-import android.app.Activity
-import android.content.Context
 import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup

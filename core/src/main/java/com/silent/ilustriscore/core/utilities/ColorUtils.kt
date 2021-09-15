@@ -39,10 +39,10 @@ object ColorUtils {
     }
 
     private fun darkenColor(color: Int, fraction: Double): Int {
-        return Math.max(color - color * fraction, 0.0).toInt()
+        return (color - color * fraction).coerceAtLeast(0.0).toInt()
     }
 
     private fun lightenColor(color: Int, fraction: Double): Int {
-        return Math.min(color + color * fraction, 255.0).toInt()
+        return (color + color * fraction).coerceAtMost(255.0).toInt()
     }
 }

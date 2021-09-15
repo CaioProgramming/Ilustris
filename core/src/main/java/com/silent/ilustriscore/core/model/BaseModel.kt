@@ -26,7 +26,7 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
     OnCompleteListener<Void>,
     EventListener<QuerySnapshot> where T : BaseBean {
 
-    protected val reference: CollectionReference by lazy {
+    private val reference: CollectionReference by lazy {
         FirebaseFirestore.getInstance().collection(path)
     }
 
@@ -96,13 +96,13 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
             }
             uploadTask.addOnSuccessListener {
                 val downloadUrl = it.storage.downloadUrl
-                downloadUrl.addOnSuccessListener { downloadUrl ->
-                    onSuccess(downloadUrl.toString())
+                downloadUrl.addOnSuccessListener { result ->
+                    onSuccess(result.toString())
                 }
-                downloadUrl.addOnFailureListener {
+                downloadUrl.addOnFailureListener { exception ->
                     presenter.errorCallBack(
                         DataException(
-                            "Ocorreu um erro ao salvar o ícone ${it.message}",
+                            "Ocorreu um erro ao salvar o ícone ${exception.message}",
                             ErrorType.SAVE
                         )
                     )

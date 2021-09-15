@@ -3,8 +3,6 @@ package com.silent.ilustriscore.core.contract
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.model.DataException
-import com.silent.ilustriscore.core.presenter.BasePresenter
 
 interface ModelContract<T> where T : BaseBean {
 

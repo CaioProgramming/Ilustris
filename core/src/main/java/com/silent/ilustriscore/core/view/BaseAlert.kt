@@ -13,10 +13,10 @@ import com.silent.ilustriscore.core.utilities.DialogStyles
 
 abstract class BaseAlert<V>(
     var context: Context,
-    val layout: Int,
+    private val layout: Int,
     val style: DialogStyles = DialogStyles.DEFAULT_NO_BORDER,
-    val onShowDialog: (() -> Unit)? = null,
-    val onDismiss: (() -> Unit)? = null
+    private val onShowDialog: (() -> Unit)? = null,
+    private val onDismiss: (() -> Unit)? = null
 ) : DialogInterface.OnShowListener, DialogInterface.OnDismissListener where V : ViewDataBinding {
 
 
@@ -35,12 +35,11 @@ abstract class BaseAlert<V>(
     fun buildDialog() {
         dialog.apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
-            //window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             setCanceledOnTouchOutside(true)
             setOnShowListener(this@BaseAlert)
             setOnDismissListener(this@BaseAlert)
             setContentView(view)
-            viewBind = DataBindingUtil.bind<V>(view)!!
+            viewBind = DataBindingUtil.bind(view)!!
             viewBind.configure()
             dialog.show()
         }

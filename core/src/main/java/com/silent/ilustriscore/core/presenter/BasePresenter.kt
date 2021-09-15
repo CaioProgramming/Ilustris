@@ -1,7 +1,6 @@
 package com.silent.ilustriscore.core.presenter
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseUser
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.PresenterContract
 import com.silent.ilustriscore.core.model.DTOMessage

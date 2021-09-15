@@ -8,7 +8,7 @@ enum class MessageType {
 }
 
 enum class OperationType {
-    DATA_SAVED, DATA_UPDATED, DELETE, DATA_RETRIEVED, UNKNOW
+    DATA_SAVED, DATA_UPDATED, DELETE, DATA_RETRIEVED, UNKNOWN
 }
 
 enum class DialogStyles(val resource: Int) {

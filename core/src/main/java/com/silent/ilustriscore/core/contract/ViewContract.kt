@@ -1,11 +1,10 @@
-package com.creat.motiv.contract
+package com.silent.ilustriscore.core.contract
 
 import android.content.Context
 import androidx.databinding.ViewDataBinding
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.model.DTOMessage
 import com.silent.ilustriscore.core.model.DataException
-import com.silent.ilustriscore.core.model.ErrorType
 import com.silent.ilustriscore.core.presenter.BasePresenter
 
 
