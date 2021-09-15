@@ -33,7 +33,7 @@ abstract class BaseView<T> : ViewContract<T> where  T : BaseBean {
     }
 
     override fun showListData(list: List<T>) {
-        Log.i(javaClass.simpleName, "showListData: $list")
+        Log.i(javaClass.simpleName, "showListData(${list.size}): $list")
     }
 
     override fun showData(data: T) {

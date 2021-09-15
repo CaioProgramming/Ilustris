@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "687468222415",
+    "project_id": "ilustris-portfolio",
+    "storage_bucket": "ilustris-portfolio.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:687468222415:android:7e02970545fac1272364ba",
+        "android_client_info": {
+          "package_name": "com.ilustris.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "687468222415-1jeim409l5j8kvjg4agud707hfhem5ot.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ilustris.app",
+            "certificate_hash": "e52ea948ad8eb3370c325822e60b1550052192ac"
+          }
+        },
+        {
+          "client_id": "687468222415-t7seas8105597sieksd3ont55eain8fu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj1MPS4C1KFzgwfdpKqe8EE8bpfg8iSpQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "687468222415-t7seas8105597sieksd3ont55eain8fu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

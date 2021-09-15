@@ -1,12 +1,12 @@
 <resources>
-    <dimen name="padding_small">8dp</dimen>
-    <dimen name="padding_big">32dp</dimen>
-    <dimen name="padding_default">16dp</dimen>
-    <dimen name="margin_small">4dp</dimen>
-    <dimen name="margin_default">10dp</dimen>
-    <dimen name="margin_big">10dp</dimen>
-    <dimen name="radius_small">5dp</dimen>
-    <dimen name="radius_default">10dp</dimen>
-    <dimen name="radius_medium">15dp</dimen>
-    <dimen name="radius_big">25dp</dimen>
+    <dimen name="padding_small_8dp">8dp</dimen>
+    <dimen name="padding_big_24">24dp</dimen>
+    <dimen name="padding_default_16dp">16dp</dimen>
+    <dimen name="margin_small_4dp">4dp</dimen>
+    <dimen name="margin_default_10dp">10dp</dimen>
+    <dimen name="margin_big_16dp">16dp</dimen>
+    <dimen name="radius_small_5dp">5dp</dimen>
+    <dimen name="radius_default_10dp">10dp</dimen>
+    <dimen name="radius_medium_15dp">15dp</dimen>
+    <dimen name="radius_big_20dp">20dp</dimen>
 </resources>

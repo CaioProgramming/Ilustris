@@ -1,21 +1,24 @@
 package com.silent.ilustriscore.core.model
 
+import android.net.Uri
 import android.util.Log
-import com.creat.motiv.utilities.SEARCH_SUFFIX
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.storage.FirebaseStorage
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ModelContract
 import com.silent.ilustriscore.core.presenter.BasePresenter
 import com.silent.ilustriscore.core.utilities.MessageType
 import com.silent.ilustriscore.core.utilities.OperationType
+import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -76,14 +79,48 @@ abstract class BaseModel<T>(private val presenter: BasePresenter<T>) : ModelCont
         }
     }
 
+    fun uploadToStorage(uri: String, onSuccess: (String) -> Unit) {
+        try {
+            val file = File(uri)
+            val uriFile = Uri.fromFile(file)
+            val storageRef = FirebaseStorage.getInstance().reference
+            val iconRef = storageRef.child("$path/${file.name}")
+            val uploadTask = iconRef.putFile(uriFile)
+            uploadTask.addOnFailureListener {
+                presenter.errorCallBack(
+                    DataException(
+                        "Ocorreu um erro ao salvar o arquivo em ${it.message}",
+                        ErrorType.SAVE
+                    )
+                )
+            }
+            uploadTask.addOnSuccessListener {
+                val downloadUrl = it.storage.downloadUrl
+                downloadUrl.addOnSuccessListener { downloadUrl ->
+                    onSuccess(downloadUrl.toString())
+                }
+                downloadUrl.addOnFailureListener {
+                    presenter.errorCallBack(
+                        DataException(
+                            "Ocorreu um erro ao salvar o ícone ${it.message}",
+                            ErrorType.SAVE
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            errorMessage("Ocorreu um erro ao salvar os arquivos ${e.message}", ErrorType.SAVE)
+        }
+    }
+
     private fun errorMessage(
-            message: String = "Ocorreu um erro ao processar",
-            errorType: ErrorType = ErrorType.UNKNOWN
+        message: String = "Ocorreu um erro ao processar",
+        errorType: ErrorType = ErrorType.UNKNOWN
     ): DataException = DataException(message, errorType)
 
     private fun successMessage(
-            message: String = "Operação concluída com sucesso",
-            operationType: OperationType
+        message: String = "Operação concluída com sucesso",
+        operationType: OperationType
     ): DTOMessage = DTOMessage(message, MessageType.SUCCESS, operationType = operationType)
 
     fun warningMessage(message: String = "Um erro inesperado aconteceu, recomenda-se verificar"): DTOMessage =

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_default_10dp"
+        app:cardCornerRadius="@dimen/radius_default_10dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_default_16dp">
+
+            <TextView
+                android:id="@+id/error_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@color/material_red500"
+                tools:text="É necessário autorizar a permissão de acesso aos arquivos para continuar" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/padding_small_8dp"
+                android:text="Adicionar novo app"
+                android:textAlignment="center"
+                android:textAppearance="@style/Ilustris.Title" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="@color/material_grey200"
+                app:cardCornerRadius="@dimen/radius_default_10dp"
+                app:cardElevation="3dp">
+
+                <ImageView
+                    android:id="@+id/appIconImageView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_round_star_border_24" />
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <EditText
+                android:id="@+id/appNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/margin_default_10dp"
+                android:background="@color/transparent"
+                android:hint="Nome do app"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textColor="?android:textColorPrimary"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/appLinkEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/padding_small_8dp"
+                android:background="@drawable/rounded_background"
+                android:drawableStart="@drawable/ic_round_play_arrow_24"
+                android:drawablePadding="@dimen/padding_small_8dp"
+                android:hint="link na playstore" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="200dp"
+                app:strokeColor="?android:textColorHint"
+                app:strokeWidth="1dp">
+
+                <EditText
+                    android:id="@+id/appDescriptionEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_default_10dp"
+                    android:background="@color/transparent"
+                    android:hint="Breve descrição do app" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveAppButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/margin_default_10dp"
+                android:paddingVertical="@dimen/padding_default_16dp"
+                android:text="Salvar"
+                app:cornerRadius="@dimen/radius_default_10dp" />
+
+
+        </LinearLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

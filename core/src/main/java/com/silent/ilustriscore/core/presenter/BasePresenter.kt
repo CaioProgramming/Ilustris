@@ -23,6 +23,10 @@ abstract class BasePresenter<T> : PresenterContract<T> where T : BaseBean {
         model.getAllData()
     }
 
+    override fun uploadFile(uri: String, getDownloadUrl: (String) -> Unit) {
+        model.uploadToStorage(uri, getDownloadUrl)
+    }
+
     override fun loadSingleData(key: String) {
         view.onLoading()
         model.getSingleData(key)

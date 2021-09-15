@@ -2,7 +2,12 @@ package com.silent.ilustriscore.core.utilities
 
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 fun Context.hideBackButton() {
@@ -27,4 +32,17 @@ fun Context.isDarkMode(): Boolean {
         else -> false
     }
 }
+
+fun AppCompatActivity.getView(): View = findViewById<View>(android.R.id.content).rootView
+
+fun delayedFunction(delayTime: Long = 1000, function: () -> Unit) {
+    GlobalScope.launch {
+        delay(delayTime)
+        GlobalScope.launch(Dispatchers.Main) {
+            function.invoke()
+        }
+
+    }
+}
+
 

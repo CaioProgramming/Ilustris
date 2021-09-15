@@ -11,6 +11,7 @@ interface PresenterContract<T> where T : BaseBean {
     val view: BaseView<T>
     val model: BaseModel<T>
 
+    fun uploadFile(uri: String, getDownloadUrl: (String) -> Unit)
     fun saveData(data: T, forcedID: String? = null)
     fun deleteData(data: T)
     fun updateData(data: T)
