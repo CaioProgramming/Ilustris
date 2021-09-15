@@ -11,14 +11,15 @@ class LoginHelper {
         fun signIn(
             activity: AppCompatActivity,
             loginProviders: List<AuthUI.IdpConfig>,
-            theme: Int
+            theme: Int,
+            appLogo: Int,
         ) {
 
             val firebaseUser = FirebaseAuth.getInstance().currentUser
             if (firebaseUser == null) {
                 activity.startActivityForResult(
                     AuthUI.getInstance().createSignInIntentBuilder()
-                        .setLogo(R.mipmap.ic_launcher)
+                        .setLogo(appLogo)
                         .setAvailableProviders(loginProviders)
                         .setTheme(theme)
                         .build(), RC_SIGN_IN

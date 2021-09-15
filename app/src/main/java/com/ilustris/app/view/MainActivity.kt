@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             AuthUI.IdpConfig.EmailBuilder().build()
         )
         if (FirebaseAuth.getInstance().currentUser == null) {
-            LoginHelper.signIn(this, providers, R.style.Ilustris_Theme)
+            LoginHelper.signIn(this, providers, R.style.Ilustris_Theme, R.mipmap.ic_launcher)
         } else {
             mainActBinder.initView()
         }
