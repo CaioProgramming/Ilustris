@@ -6,9 +6,8 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_default_10dp"
         app:cardCornerRadius="@dimen/radius_default_10dp"
-        app:cardElevation="0dp">
+        app:cardElevation="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,16 +36,16 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
-                app:cardBackgroundColor="@color/material_grey200"
+                app:cardBackgroundColor="?android:colorBackground"
                 app:cardCornerRadius="@dimen/radius_default_10dp"
-                app:cardElevation="3dp">
+                app:cardElevation="0dp">
 
                 <ImageView
                     android:id="@+id/appIconImageView"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_round_star_border_24" />
+                    android:src="@drawable/ic_square_7" />
             </com.google.android.material.card.MaterialCardView>
 
 
@@ -68,7 +67,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/padding_small_8dp"
                 android:background="@drawable/rounded_background"
-                android:drawableStart="@drawable/ic_round_play_arrow_24"
+                android:drawableStart="@drawable/ic_google_play_1"
+                android:drawableTint="?android:textColorHint"
+                android:inputType="textWebEditText|textUri"
                 android:drawablePadding="@dimen/padding_small_8dp"
                 android:hint="link na playstore" />
 

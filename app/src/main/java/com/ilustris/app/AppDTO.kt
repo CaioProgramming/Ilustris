@@ -10,5 +10,5 @@ data class AppDTO(
     var appIcon: String = "",
     var appName: String = "",
     var description: String = "",
-    var url: String = ""
+    var url: String = "",
 ) : BaseBean(id)

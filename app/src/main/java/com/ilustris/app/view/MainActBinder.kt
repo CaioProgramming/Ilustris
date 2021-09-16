@@ -14,7 +14,7 @@ import com.silent.ilustriscore.core.view.BaseView
 class MainActBinder(override val viewBind: ActivityMainBinding) : BaseView<AppDTO>() {
 
     override val presenter = IlustrisPresenter(this)
-
+    var appsAdapter: AppsAdapter? = null
     override fun initView() {
         viewBind.starAnimation.playAnimation()
         presenter.loadData()
@@ -29,6 +29,18 @@ class MainActBinder(override val viewBind: ActivityMainBinding) : BaseView<AppDT
         }
         val appList = ArrayList(list)
         appList.add(AppDTO(id = ADDNEWAPP))
+        if (appsAdapter == null) {
+            appsAdapter = AppsAdapter(appList) {
+                NewAppDialog(context) { newApp ->
+                    presenter.uploadFile(newApp.appIcon) { iconUrl ->
+                        newApp.appIcon = iconUrl
+                        presenter.saveData(newApp)
+                    }
+                }.buildDialog()
+            }
+        } else {
+            appsAdapter?.updateAdapter(appList)
+        }
         viewBind.appsRecyclerView.adapter = AppsAdapter(appList) {
             NewAppDialog(context) { newApp ->
                 presenter.uploadFile(newApp.appIcon) { iconUrl ->
