@@ -3,7 +3,7 @@ package com.silent.ilustriscore.core.utilities
 import java.text.SimpleDateFormat
 import java.util.*
 
-enum class DateFormats(format: String) {
+enum class DateFormats(val format: String) {
     DD_OF_MM_FROM_YYYY("dd 'de' MMMM 'de' yyyy"),
     DD_MM_YYY("DD/MM/YYY"),
     MM_DD_YYY("MM/DD/YY"),
