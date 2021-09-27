@@ -24,11 +24,6 @@ class AppsAdapter(var appList: appList, val addNewApp: () -> Unit) :
     RecyclerView.Adapter<AppsAdapter.AppViewHolder>() {
 
 
-    fun updateAdapter(newAppList: appList) {
-        appList = newAppList
-        notifyDataSetChanged()
-    }
-
     inner class AppViewHolder(val appsCardLayoutBinding: AppsCardLayoutBinding) :
         RecyclerView.ViewHolder(appsCardLayoutBinding.root) {
         fun bind() {

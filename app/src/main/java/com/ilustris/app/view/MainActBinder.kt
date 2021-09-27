@@ -27,9 +27,8 @@ class MainActBinder(override val viewBind: ActivityMainBinding) : BaseView<AppDT
                 viewBind.appbar.setExpanded(false, true)
             }
         }
-        val appList = ArrayList(list)
+        val appList = ArrayList(list.sortedBy { it.url.isEmpty() })
         appList.add(AppDTO(id = ADDNEWAPP))
-        if (appsAdapter == null) {
             appsAdapter = AppsAdapter(appList) {
                 NewAppDialog(context) { newApp ->
                     presenter.uploadFile(newApp.appIcon) { iconUrl ->
@@ -38,9 +37,6 @@ class MainActBinder(override val viewBind: ActivityMainBinding) : BaseView<AppDT
                     }
                 }.buildDialog()
             }
-        } else {
-            appsAdapter?.updateAdapter(appList)
-        }
         viewBind.appsRecyclerView.adapter = AppsAdapter(appList) {
             NewAppDialog(context) { newApp ->
                 presenter.uploadFile(newApp.appIcon) { iconUrl ->

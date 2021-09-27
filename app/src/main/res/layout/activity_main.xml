@@ -61,7 +61,7 @@
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-            app:spanCount="2"
+            app:spanCount="3"
             tools:listitem="@layout/apps_card_layout" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

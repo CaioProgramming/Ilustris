@@ -78,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="200dp"
                 app:strokeColor="?android:textColorHint"
+                app:cardBackgroundColor="?attr/secondaryBackColor"
                 app:strokeWidth="1dp">
 
                 <EditText
