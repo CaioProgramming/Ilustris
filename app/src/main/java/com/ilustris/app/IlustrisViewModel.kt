@@ -2,11 +2,12 @@ package com.ilustris.app
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.silent.ilustriscore.core.model.BaseModel
-import com.silent.ilustriscore.core.presenter.BasePresenter
+import com.silent.ilustriscore.core.model.BaseViewModel
 
-class IlustrisModel(presenter: BasePresenter<AppDTO>) : BaseModel<AppDTO>(presenter) {
-    override val path = "Apps"
+class IlustrisViewModel : BaseViewModel<AppDTO>() {
+
+    override val dataPath = "Apps"
+    var newAppDTO = AppDTO()
 
     override fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): AppDTO {
         return dataSnapshot.toObject(AppDTO::class.java)!!.apply {

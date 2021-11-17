@@ -24,7 +24,7 @@ class AppsAdapter(var appList: appList, val addNewApp: () -> Unit) :
     RecyclerView.Adapter<AppsAdapter.AppViewHolder>() {
 
 
-    inner class AppViewHolder(val appsCardLayoutBinding: AppsCardLayoutBinding) :
+    inner class AppViewHolder(private val appsCardLayoutBinding: AppsCardLayoutBinding) :
         RecyclerView.ViewHolder(appsCardLayoutBinding.root) {
         fun bind() {
             appList[adapterPosition].run {
