@@ -31,6 +31,9 @@
                     android:layout_height="100dp"
                     android:layout_gravity="center"
                     android:layout_marginTop="@dimen/margin_default_10dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    app:lottie_repeatMode="reverse"
                     android:layout_marginBottom="?attr/actionBarSize"
                     app:lottie_colorFilter="@color/colorPrimary"
                     app:lottie_rawRes="@raw/starloading" />

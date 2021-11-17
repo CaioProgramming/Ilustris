@@ -4,11 +4,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -29,46 +29,42 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-
-    buildFeatures {
-        dataBinding true
-    }
 }
 
 dependencies {
 
-    api "org.jetbrains.kotlin:kotlin-stdlib:1.5.21"
-    api 'androidx.core:core-ktx:1.6.0'
-    api 'androidx.appcompat:appcompat:1.3.1'
-    api 'androidx.constraintlayout:constraintlayout:2.1.0'
+    api "org.jetbrains.kotlin:kotlin-stdlib:1.5.31"
+    api 'androidx.core:core-ktx:1.7.0'
+    api 'androidx.appcompat:appcompat:1.4.0'
+    api 'androidx.constraintlayout:constraintlayout:2.1.2'
     api 'androidx.recyclerview:recyclerview:1.2.1'
     api 'androidx.cardview:cardview:1.0.0'
     api 'androidx.navigation:navigation-ui-ktx:2.3.5'
     api 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-    api "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
-    api "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
-    api "androidx.fragment:fragment-ktx:1.3.6"
-    api 'com.google.android.material:material:1.5.0-alpha02'
-    api 'com.google.android.play:core:1.10.1'
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2-native-mt'
-    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.21'
+    api "androidx.lifecycle:lifecycle-livedata-ktx:2.4.0"
+    api "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0"
+    api "androidx.fragment:fragment-ktx:1.4.0"
+    api 'com.google.android.material:material:1.5.0-beta01'
+    api 'com.google.android.play:core:1.10.2'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.31'
     api 'com.github.mcginty:material-colors:1.1.0'
-    api "androidx.core:core-ktx:1.6.0"
-    api 'com.github.bumptech.glide:glide:4.11.0'
-    kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    api "androidx.core:core-ktx:1.7.0"
+    api 'com.github.bumptech.glide:glide:+'
+    kapt 'com.github.bumptech.glide:compiler:+'
     api 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.2-native-mt'
-    api platform('com.google.firebase:firebase-bom:25.12.0')
+    api platform('com.google.firebase:firebase-bom:+')
     api 'com.google.firebase:firebase-firestore-ktx'
     api 'com.google.firebase:firebase-database-ktx'
     api 'com.google.firebase:firebase-storage-ktx'
-    api 'com.firebaseui:firebase-ui-auth:4.3.1'
-    api 'com.google.firebase:firebase-appindexing:20.0.0'
-    api 'com.google.firebase:firebase-auth:21.0.1'
-    api 'com.google.firebase:firebase-database:20.0.1'
-    api 'com.firebaseui:firebase-ui-database:2.1.0'
-    api 'com.google.firebase:firebase-storage:20.0.0'
-    api 'com.google.firebase:firebase-core:19.0.1'
-    api 'com.google.firebase:firebase-messaging:22.0.0'
+    api 'com.firebaseui:firebase-ui-auth:+'
+    api 'com.google.firebase:firebase-appindexing:+'
+    api 'com.google.firebase:firebase-auth:+'
+    api 'com.google.firebase:firebase-database:+'
+    api 'com.firebaseui:firebase-ui-database:+'
+    api 'com.google.firebase:firebase-storage:+'
+    api 'com.google.firebase:firebase-core:+'
+    api 'com.google.firebase:firebase-messaging:+'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
