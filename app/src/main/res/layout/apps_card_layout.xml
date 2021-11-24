@@ -8,13 +8,13 @@
         android:id="@+id/appCard"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:stateListAnimator="@animator/scale_up_animator"
+        android:stateListAnimator="@animator/scale_down_animator"
         android:layout_margin="@dimen/radius_default_10dp"
         app:cardElevation="1dp"
         app:cardCornerRadius="@dimen/radius_big_20dp">
 
         <ImageView
-            android:id="@+id/appIcon"
+            android:id="@+id/appLogoImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"

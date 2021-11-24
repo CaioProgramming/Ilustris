@@ -6,18 +6,16 @@ import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.silent.ilustriscore.core.utilities.DialogStyles
 
-abstract class BaseAlert<V>(
+abstract class BaseAlert(
     var context: Context,
     private val layout: Int,
     val style: DialogStyles = DialogStyles.DEFAULT_NO_BORDER,
     private val onShowDialog: (() -> Unit)? = null,
     private val onDismiss: (() -> Unit)? = null
-) : DialogInterface.OnShowListener, DialogInterface.OnDismissListener where V : ViewDataBinding {
+) : DialogInterface.OnShowListener, DialogInterface.OnDismissListener {
 
 
     val dialog = if (style == DialogStyles.BOTTOM_NO_BORDER) BottomSheetDialog(context) else Dialog(
@@ -28,9 +26,8 @@ abstract class BaseAlert<V>(
         LayoutInflater.from(context).inflate(layout, null, false).rootView
     }
 
-    lateinit var viewBind: V
 
-    abstract fun V.configure()
+    abstract fun View.configure()
 
     fun buildDialog() {
         dialog.apply {
@@ -39,8 +36,7 @@ abstract class BaseAlert<V>(
             setOnShowListener(this@BaseAlert)
             setOnDismissListener(this@BaseAlert)
             setContentView(view)
-            viewBind = DataBindingUtil.bind(view)!!
-            viewBind.configure()
+            view.configure()
             dialog.show()
         }
     }

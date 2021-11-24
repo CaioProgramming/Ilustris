@@ -3,63 +3,74 @@ package com.ilustris.app.view.adapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ilustris.app.appList
-import com.ilustris.app.databinding.AppsCardLayoutBinding
-import androidx.core.content.ContextCompat.startActivity
-
 import android.content.Intent
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.ilustris.animations.fadeIn
-import com.ilustris.animations.popIn
 import com.ilustris.app.ADDNEWAPP
+import com.ilustris.app.AppDTO
 import com.ilustris.app.R
-import com.silent.ilustriscore.core.utilities.gone
+import kotlinx.android.synthetic.main.apps_card_layout.view.*
 
 
-class AppsAdapter(var appList: appList, val addNewApp: () -> Unit) :
+class AppsAdapter(
+    var appList: appList, val addNewApp: () -> Unit,
+    val deleteApp: (AppDTO) -> Unit, val editApp: (AppDTO) -> Unit
+) :
     RecyclerView.Adapter<AppsAdapter.AppViewHolder>() {
 
 
-    inner class AppViewHolder(private val appsCardLayoutBinding: AppsCardLayoutBinding) :
-        RecyclerView.ViewHolder(appsCardLayoutBinding.root) {
+    inner class AppViewHolder(itemview: View) :
+        RecyclerView.ViewHolder(itemview) {
         fun bind() {
             appList[adapterPosition].run {
                 if (id != ADDNEWAPP) {
-                    Glide.with(appsCardLayoutBinding.root.context)
+                    Glide.with(itemView.context)
                         .load(appIcon)
-                        .into(appsCardLayoutBinding.appIcon)
+                        .into(itemView.appLogoImageView)
                 } else {
-                    appsCardLayoutBinding.appIcon.setImageResource(R.drawable.ic_square_7)
+                    itemView.appLogoImageView.setImageResource(R.drawable.ic_square_7)
                 }
-                appsCardLayoutBinding.appCard.setOnClickListener {
+                itemView.appCard.setOnClickListener {
                     if (id != ADDNEWAPP) {
                         if (url.isNotEmpty()) {
                             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                            appsCardLayoutBinding.root.context.startActivity(browserIntent)
+                            itemView.context.startActivity(browserIntent)
                         }
                     } else {
                         addNewApp.invoke()
                     }
                 }
-                appsCardLayoutBinding.appCard.fadeIn()
+                if (id != ADDNEWAPP) {
+                    itemView.appCard.setOnLongClickListener {
+                        deleteApp(this)
+                        false
+                    }
+                    itemView.appCard.setOnDragListener { v, event ->
+                        editApp(this)
+                        false
+                    }
+                }
+                itemView.appCard.fadeIn()
                 if (id != ADDNEWAPP && url.isEmpty()) {
                     val matrix = ColorMatrix().apply {
                         setSaturation(0f)
                     }
                     val filter = ColorMatrixColorFilter(matrix)
 
-                    appsCardLayoutBinding.appIcon.colorFilter = filter
+                    itemView.appLogoImageView.colorFilter = filter
                 } else {
                     val matrix = ColorMatrix().apply {
                         setSaturation(1f)
                     }
                     val filter = ColorMatrixColorFilter(matrix)
 
-                    appsCardLayoutBinding.appIcon.colorFilter = filter
+                    itemView.appLogoImageView.colorFilter = filter
                 }
             }
         }
@@ -67,12 +78,7 @@ class AppsAdapter(var appList: appList, val addNewApp: () -> Unit) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
         return AppViewHolder(
-            DataBindingUtil.inflate(
-                LayoutInflater.from(parent.context),
-                R.layout.apps_card_layout,
-                parent,
-                false
-            )
+            LayoutInflater.from(parent.context).inflate(R.layout.apps_card_layout, parent, false)
         )
     }
 
