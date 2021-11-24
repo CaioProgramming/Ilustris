@@ -4,6 +4,7 @@ import android.net.Uri
 import com.silent.ilustriscore.core.bean.BaseBean
 
 sealed class ViewModelBaseState {
+    object RequireAuth : ViewModelBaseState()
     object DataDeletedState : ViewModelBaseState()
     data class DataRetrievedState(val data: BaseBean) : ViewModelBaseState()
     data class DataListRetrievedState(val dataList: List<BaseBean>) : ViewModelBaseState()
