@@ -45,16 +45,16 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         if (isAuthenticated()) updateViewState(ViewModelBaseState.RequireAuth)
     }
 
-    fun uploadFile(uri: String) {
-        viewModelScope.launch {
-            val result = service.uploadToStorage(uri)
-            if (result.isSuccess) {
-                updateViewState(ViewModelBaseState.FileUploadedState(Uri.parse(result.success.data)))
-            } else sendErrorState(result.error.errorException)
-        }
-    }
+   open fun uploadFile(uri: String) {
+       viewModelScope.launch {
+           val result = service.uploadToStorage(uri)
+           if (result.isSuccess) {
+               updateViewState(ViewModelBaseState.FileUploadedState(Uri.parse(result.success.data)))
+           } else sendErrorState(result.error.errorException)
+       }
+   }
 
-    fun editData(data: T) {
+    open fun editData(data: T) {
         viewModelScope.launch {
             val result = service.editData(data)
             if (result.isSuccess) {
@@ -63,7 +63,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         }
     }
 
-    fun saveData(data: T) {
+    open fun saveData(data: T) {
         viewModelScope.launch {
             val result = service.addData(data)
             if (result.isSuccess) {
@@ -72,7 +72,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         }
     }
 
-    fun getSingleData(id: String) {
+    open fun getSingleData(id: String) {
         viewModelScope.launch {
             val result = service.getSingleData(id)
             if (result.isSuccess) {
@@ -81,7 +81,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         }
     }
 
-    fun explicitSearch(value: String, field: String) {
+    open fun explicitSearch(value: String, field: String) {
         viewModelScope.launch {
             val result = service.explicitSearch(value, field)
             if (result.isSuccess) {
@@ -90,7 +90,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         }
     }
 
-    fun query(value: String, field: String) {
+    open fun query(value: String, field: String) {
         viewModelScope.launch {
             val result = service.query(value, field)
             if (result.isSuccess) {
@@ -99,7 +99,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         }
     }
 
-    fun deleteData(id: String) {
+    open fun deleteData(id: String) {
         viewModelScope.launch {
             val result = service.deleteData(id)
             if (result.isSuccess) {
