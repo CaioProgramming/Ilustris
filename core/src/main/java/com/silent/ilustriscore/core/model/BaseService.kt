@@ -15,7 +15,7 @@ import java.util.*
 
 abstract class BaseService<T> : ServiceContract<T> where T : BaseBean {
 
-    var requireAuth: Boolean = true
+   open var requireAuth: Boolean = false
 
     private val reference: CollectionReference by lazy {
         FirebaseFirestore.getInstance().collection(dataPath)
