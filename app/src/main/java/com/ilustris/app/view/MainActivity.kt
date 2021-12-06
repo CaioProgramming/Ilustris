@@ -13,6 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.ilustris.app.*
 import com.ilustris.app.view.adapter.AppsAdapter
+import com.ilustris.app.view.dialog.ContactDialog
 import com.ilustris.app.view.dialog.NewAppDialog
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.model.ViewModelBaseActions
@@ -27,18 +28,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        getInTouch.setOnClickListener {
+            ContactDialog(this).buildDialog()
+        }
         observeViewModel()
         login()
-    }
-
-    private fun setupView() {
-
     }
 
     private fun showNewAppDialog() {
         NewAppDialog(this) { newApp ->
             viewModel.newAppDTO = newApp
-            viewModel.dispatchViewAction(ViewModelBaseActions.UploadFileAction(newApp.appIcon))
+            viewModel.uploadFile(newApp.appIcon)
         }.buildDialog()
     }
 
@@ -47,14 +47,14 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 ViewModelBaseState.DataDeletedState -> {
                     getView().showSnackBar("App removido com sucesso")
-                    viewModel.dispatchViewAction(ViewModelBaseActions.GetAllDataAction)
+                    viewModel.getAllData()
                 }
                 is ViewModelBaseState.DataListRetrievedState -> {
                     setupRecyclerview(it.dataList)
                 }
                 is ViewModelBaseState.DataSavedState -> {
                     getView().showSnackBar("App salvo com sucesso")
-                    viewModel.dispatchViewAction(ViewModelBaseActions.GetAllDataAction)
+                    viewModel.getAllData()
                 }
                 is ViewModelBaseState.DataUpdateState -> getView().showSnackBar("App atualizado com sucesso")
 
@@ -64,9 +64,9 @@ class MainActivity : AppCompatActivity() {
                 )
 
                 is ViewModelBaseState.FileUploadedState -> {
-                    viewModel.dispatchViewAction(ViewModelBaseActions.SaveDataAction(viewModel.newAppDTO.apply {
+                    viewModel.saveData(viewModel.newAppDTO.apply {
                         this.appIcon = it.downloadUrl.toString()
-                    }))
+                    })
                 }
 
                 is ViewModelBaseState.DataRetrievedState -> TODO()
@@ -94,8 +94,8 @@ class MainActivity : AppCompatActivity() {
             requestAppDelete(it)
         }, { appDTO ->
             NewAppDialog(this, appDTO) {
-                viewModel.dispatchViewAction(ViewModelBaseActions.UpdateDataAction(it))
-            }
+                viewModel.editData(it)
+            }.buildDialog()
         })
         appsRecyclerView.adapter = appsAdapter
     }
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 "Cancelar"
             ) { dialog, _ -> dialog.dismiss() }
             .setNegativeButton("Confirmar") { dialog, which ->
-                viewModel.dispatchViewAction(ViewModelBaseActions.DeleteDataAction(it.id))
+                viewModel.deleteData(it.id)
                 dialog.dismiss()
             }.show()
     }
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         if (FirebaseAuth.getInstance().currentUser == null) {
             LoginHelper.signIn(this, providers, R.style.Ilustris_Theme, R.mipmap.ic_launcher)
         } else {
-            viewModel.dispatchViewAction(ViewModelBaseActions.GetAllDataAction)
+            viewModel.getAllData()
         }
     }
 
@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == RC_SIGN_IN) {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {
-                viewModel.dispatchViewAction(ViewModelBaseActions.GetAllDataAction)
+                viewModel.getAllData()
             } else {
                 if (response != null) {
                     getView().showSnackBar("Ocorreu um erro ao realizar o login, tente novamente",

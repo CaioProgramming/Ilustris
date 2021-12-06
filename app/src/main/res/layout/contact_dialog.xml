@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_top"
+    android:gravity="center|top"
+    android:orientation="vertical">
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_margin="@dimen/margin_default_10dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/programming"
+        app:lottie_repeatMode="reverse"
+        app:lottie_scale="2" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Curtiu o que viu? Entre em contato caso queira seu próprio app 😉 "
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/email_contact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_default_10dp"
+        android:padding="@dimen/padding_default_16dp"
+        android:text="Enviar Email"
+        app:backgroundTint="?attr/colorPrimary"
+        app:cornerRadius="@dimen/radius_small_5dp"
+        app:elevation="0dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/phone_contact"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_default_10dp"
+        android:padding="@dimen/padding_small_8dp"
+        android:text="Enviar mensagem "
+        app:cornerRadius="@dimen/radius_small_5dp" />
+
+
+</LinearLayout>
