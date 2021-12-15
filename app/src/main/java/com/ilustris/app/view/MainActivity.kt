@@ -9,7 +9,6 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.FirebaseAuth
 import com.ilustris.app.*
 import com.ilustris.app.view.adapter.AppsAdapter
 import com.ilustris.app.view.dialog.ContactDialog
@@ -117,7 +116,7 @@ class MainActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build()
         )
-        if (FirebaseAuth.getInstance().currentUser == null) {
+        if (viewModel.currentUser != null) {
             LoginHelper.signIn(this, providers, R.style.Ilustris_Theme, R.mipmap.ic_launcher)
         } else {
             viewModel.getAllData()
