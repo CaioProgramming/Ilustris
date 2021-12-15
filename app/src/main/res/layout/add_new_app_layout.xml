@@ -1,120 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/error_message"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/material_red500"
+        android:padding="@dimen/padding_default_16dp"
+        android:textAlignment="center"
+        android:textColor="@color/md_white"
+        android:visibility="gone"
+        tools:text="É necessário autorizar a permissão de acesso aos arquivos para continuar" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/saveAppButton"
+        android:layout_below="@id/error_message"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/padding_default_16dp"
+        app:layout_constraintBottom_toTopOf="@id/saveAppButton"
+        app:layout_constraintTop_toBottomOf="@id/error_message">
+
 
         <TextView
-            android:id="@+id/error_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="@color/material_red500"
-            android:padding="@dimen/padding_default_16dp"
+            android:paddingVertical="@dimen/padding_default_16dp"
+            android:text="Adicionar novo app"
             android:textAlignment="center"
-            android:textColor="@color/md_white"
-            android:visibility="gone"
-            tools:text="É necessário autorizar a permissão de acesso aos arquivos para continuar" />
+            android:textAppearance="@style/Ilustris.Title" />
 
-
-        <LinearLayout
-            android:layout_height="match_parent"
-            android:layout_above="@id/saveAppButton"
-            android:layout_width="match_parent"
-            android:layout_below="@id/error_message"
-            app:layout_constraintBottom_toTopOf="@id/saveAppButton"
-            app:layout_constraintTop_toBottomOf="@id/error_message"
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/padding_default_16dp">
+            app:cardBackgroundColor="?android:colorBackground"
+            app:cardCornerRadius="@dimen/radius_default_10dp"
+            app:cardElevation="0dp">
 
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="@dimen/padding_default_16dp"
-                android:text="Adicionar novo app"
-                android:textAlignment="center"
-                android:textAppearance="@style/Ilustris.Title" />
-
-            <com.google.android.material.card.MaterialCardView
+            <ImageView
+                android:id="@+id/appIconImageView"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_gravity="center"
-                app:cardBackgroundColor="?android:colorBackground"
-                app:cardCornerRadius="@dimen/radius_default_10dp"
-                app:cardElevation="0dp">
-
-                <ImageView
-                    android:id="@+id/appIconImageView"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_square_7" />
-            </com.google.android.material.card.MaterialCardView>
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_square_7" />
+        </com.google.android.material.card.MaterialCardView>
 
 
-            <EditText
-                android:id="@+id/appNameEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/margin_default_10dp"
-                android:background="@color/transparent"
-                android:hint="Nome do app"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                android:textColor="?android:textColorPrimary"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/appLinkEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/padding_small_8dp"
-                android:background="@drawable/rounded_background"
-                android:drawableStart="@drawable/ic_google_play_1"
-                android:drawableTint="?android:textColorHint"
-                android:inputType="textWebEditText|textUri"
-                android:drawablePadding="@dimen/padding_small_8dp"
-                android:hint="link na playstore" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="200dp"
-                app:cardCornerRadius="@dimen/radius_default_10dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/secondaryBackColor">
-
-                <EditText
-                    android:id="@+id/appDescriptionEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_default_10dp"
-                    android:background="@color/transparent"
-                    android:hint="Breve descrição do app" />
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-
-
-        <TextView
-            android:id="@+id/saveAppButton"
+        <EditText
+            android:id="@+id/appNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@color/md_white"
-            android:backgroundTint="?android:textColorPrimary"
-            android:foreground="?attr/selectableItemBackground"
-            android:paddingVertical="@dimen/padding_default_16dp"
-            android:text="Salvar"
+            android:layout_marginVertical="@dimen/margin_default_10dp"
+            android:background="@color/transparent"
+            android:hint="Nome do app"
             android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-            android:textColor="?android:colorBackground"
-            app:cornerRadius="0dp"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textColor="?android:textColorPrimary"
+            android:textStyle="bold" />
 
-    </RelativeLayout>
-</layout>
+        <EditText
+            android:id="@+id/appLinkEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/padding_small_8dp"
+            android:background="@drawable/rounded_background"
+            android:drawableStart="@drawable/ic_google_play_1"
+            android:drawablePadding="@dimen/padding_small_8dp"
+            android:drawableTint="?android:textColorHint"
+            android:hint="link na playstore"
+            android:inputType="textWebEditText|textUri" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="200dp"
+            app:cardBackgroundColor="?attr/secondaryBackColor"
+            app:cardCornerRadius="@dimen/radius_default_10dp"
+            app:cardElevation="0dp">
+
+            <EditText
+                android:id="@+id/appDescriptionEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_default_10dp"
+                android:background="@color/transparent"
+                android:hint="Breve descrição do app" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/saveAppButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/md_white"
+        android:backgroundTint="?android:textColorPrimary"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingVertical="@dimen/padding_default_16dp"
+        android:text="Salvar"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+        android:textColor="?android:colorBackground"
+        app:cornerRadius="0dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</RelativeLayout>

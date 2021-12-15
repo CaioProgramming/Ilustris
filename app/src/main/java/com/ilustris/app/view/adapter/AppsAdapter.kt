@@ -1,8 +1,5 @@
 package com.ilustris.app.view.adapter
 
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.ilustris.app.appList
 import android.content.Intent
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -10,11 +7,13 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.ilustris.animations.fadeIn
 import com.ilustris.app.ADDNEWAPP
 import com.ilustris.app.AppDTO
 import com.ilustris.app.R
+import com.ilustris.app.appList
 import kotlinx.android.synthetic.main.apps_card_layout.view.*
 
 
