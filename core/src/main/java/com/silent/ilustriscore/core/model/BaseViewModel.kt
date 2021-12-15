@@ -31,22 +31,6 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : Ba
         updateViewState(ViewModelBaseState.ErrorState(dataException))
     }
 
-    fun dispatchViewAction(viewAction: ViewModelBaseActions) {
-        when (viewAction) {
-            is ViewModelBaseActions.DeleteDataAction -> deleteData(viewAction.id)
-            ViewModelBaseActions.GetAllDataAction -> getAllData()
-            is ViewModelBaseActions.GetDataByIdAction -> getSingleData(viewAction.id)
-            is ViewModelBaseActions.PreciseQueryDataAction -> explicitSearch(
-                viewAction.value,
-                viewAction.field
-            )
-            is ViewModelBaseActions.QueryDataAction -> query(viewAction.value, viewAction.field)
-            is ViewModelBaseActions.SaveDataAction -> saveData(viewAction.data as T)
-            is ViewModelBaseActions.UpdateDataAction -> editData(viewAction.data as T)
-            is ViewModelBaseActions.UploadFileAction -> uploadFile(viewAction.uri)
-            is ViewModelBaseActions.SavePreciseDataAction -> editData(viewAction.data as T)
-        }
-    }
 
     fun checkAuth() {
         if (isAuthenticated()) updateViewState(ViewModelBaseState.RequireAuth)
