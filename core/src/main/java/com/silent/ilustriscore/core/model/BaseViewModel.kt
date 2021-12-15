@@ -10,9 +10,7 @@ import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ViewModelContract
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel<T> : ViewModel(), ViewModelContract<T> where T : BaseBean {
-
-    protected abstract val service: BaseService
+abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseBean {
 
     val currentUser: FirebaseUser? by lazy {
         service.currentUser
