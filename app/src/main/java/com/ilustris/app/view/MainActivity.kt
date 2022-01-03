@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
             ContactDialog(this).buildDialog()
         }
         observeViewModel()
+        viewModel.getAllData()
         login()
     }
 

@@ -12,7 +12,6 @@ import com.ilustris.app.R
 import com.silent.ilustriscore.core.utilities.DialogStyles
 import com.silent.ilustriscore.core.view.BaseAlert
 import gun0912.tedbottompicker.TedBottomPicker
-import kotlinx.android.synthetic.main.add_new_app_layout.*
 import kotlinx.android.synthetic.main.add_new_app_layout.view.*
 
 class NewAppDialog(
@@ -29,6 +28,7 @@ class NewAppDialog(
 
     override fun View.configure() {
 
+        appNameEditText.setText(appDTO.appName)
         appIconImageView.setOnClickListener {
             openPicker()
         }

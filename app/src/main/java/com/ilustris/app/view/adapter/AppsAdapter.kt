@@ -47,11 +47,11 @@ class AppsAdapter(
                 }
                 if (id != ADDNEWAPP) {
                     itemView.appCard.setOnLongClickListener {
-                        deleteApp(this)
+                        editApp(this)
                         false
                     }
                     itemView.appCard.setOnDragListener { v, event ->
-                        editApp(this)
+                        deleteApp(this)
                         false
                     }
                 }

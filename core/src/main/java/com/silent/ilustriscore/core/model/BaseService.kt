@@ -4,7 +4,9 @@ import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ServiceContract
@@ -100,13 +102,10 @@ abstract class BaseService : ServiceContract {
         return try {
             if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
             val task = reference.document(data.id).set(data).await()
-            if (task != null) {
                 Log.i(javaClass.simpleName, "edited -> $data")
                 ServiceResult.Success(data)
-            } else {
-                ServiceResult.Error(DataException.UPDATE)
-            }
         } catch (e: Exception) {
+            Log.e(javaClass.simpleName, "update data Error!")
             e.printStackTrace()
             ServiceResult.Error(DataException.UPDATE)
 
