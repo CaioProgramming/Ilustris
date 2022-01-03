@@ -4,9 +4,12 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ViewModelContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseBean {
 
@@ -33,7 +36,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
    open fun uploadFile(uri: String) {
-       viewModelScope.launch {
+       viewModelScope.launch(Dispatchers.IO) {
            updateViewState(ViewModelBaseState.LoadingState)
            val result = service.uploadToStorage(uri)
            if (result.isSuccess) {
@@ -43,7 +46,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
    }
 
     open fun editData(data: T) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.editData(data)
             if (result.isSuccess) {
@@ -55,7 +58,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
     open fun saveData(data: T) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.addData(data)
             if (result.isSuccess) {
@@ -65,7 +68,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
     open fun getSingleData(id: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.getSingleData(id)
             if (result.isSuccess) {
@@ -75,7 +78,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
     open fun explicitSearch(value: String, field: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.explicitSearch(value, field)
             if (result.isSuccess) {
@@ -85,7 +88,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
     open fun query(value: String, field: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.query(value, field)
             if (result.isSuccess) {
@@ -95,7 +98,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
     open fun deleteData(id: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.deleteData(id)
             if (result.isSuccess) {
@@ -105,7 +108,7 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
     }
 
     open fun getAllData() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
             val result = service.getAllData()
             if (result.isSuccess) {
@@ -113,4 +116,6 @@ abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseB
             } else sendErrorState(result.error.errorException)
         }
     }
+
+
 }
