@@ -36,7 +36,7 @@ fun Context.isDarkMode(): Boolean {
 fun AppCompatActivity.getView(): View = findViewById<View>(android.R.id.content).rootView
 
 fun delayedFunction(delayTime: Long = 1000, function: () -> Unit) {
-    GlobalScope.launch {
+    GlobalScope.launch(Dispatchers.IO) {
         delay(delayTime)
         GlobalScope.launch(Dispatchers.Main) {
             function.invoke()
