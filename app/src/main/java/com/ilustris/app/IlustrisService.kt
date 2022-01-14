@@ -9,8 +9,8 @@ class IlustrisService : BaseService() {
 
     override val dataPath = "Apps"
 
-    override fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean {
-        return dataSnapshot.toObject(AppDTO::class.java)!!.apply {
+    override fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean? {
+        return dataSnapshot.toObject(AppDTO::class.java)?.apply {
             id = dataSnapshot.id
         }
     }
