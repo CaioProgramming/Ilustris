@@ -9,7 +9,7 @@ import com.silent.ilustriscore.core.model.ServiceResult
 interface ServiceContract {
 
     val dataPath: String
-    fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean
+    fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean?
     fun deserializeDataSnapshot(dataSnapshot: QueryDocumentSnapshot): BaseBean
     suspend fun addData(data: BaseBean): ServiceResult<DataException, BaseBean>
     suspend fun editData(data: BaseBean): ServiceResult<DataException, BaseBean>
@@ -20,5 +20,5 @@ interface ServiceContract {
     ): ServiceResult<DataException, ArrayList<BaseBean>>
 
     suspend fun getAllData(): ServiceResult<DataException, ArrayList<BaseBean>>
-    suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean>
+    suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean?>
 }

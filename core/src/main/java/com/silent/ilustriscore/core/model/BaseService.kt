@@ -59,7 +59,7 @@ abstract class BaseService : ServiceContract {
     private fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {
         return ArrayList<BaseBean>().apply {
             querySnapshot.forEach {
-                add(deserializeDataSnapshot(it))
+                deserializeDataSnapshot(it)?.let { it1 -> add(it1) }
             }
         }
     }
@@ -87,7 +87,7 @@ abstract class BaseService : ServiceContract {
         } else ServiceResult.Error(DataException.NOTFOUND)
     }
 
-    override suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean> {
+    override suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean?> {
         if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
         val document = reference.document(id).get().await()
         return if (document != null) {
