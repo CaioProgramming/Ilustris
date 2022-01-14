@@ -20,5 +20,5 @@ interface ServiceContract {
     ): ServiceResult<DataException, ArrayList<BaseBean>>
 
     suspend fun getAllData(): ServiceResult<DataException, ArrayList<BaseBean>>
-    suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean?>
+    suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean>
 }

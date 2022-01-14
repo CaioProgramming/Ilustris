@@ -87,12 +87,17 @@ abstract class BaseService : ServiceContract {
         } else ServiceResult.Error(DataException.NOTFOUND)
     }
 
-    override suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean?> {
+    override suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean> {
         if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
         val document = reference.document(id).get().await()
         return if (document != null) {
             Log.i(javaClass.simpleName, "getSingleData: $document")
-            ServiceResult.Success(deserializeDataSnapshot(document))
+            val bean = deserializeDataSnapshot(document)
+            if (bean != null) {
+                ServiceResult.Success(bean)
+            } else {
+                ServiceResult.Error(DataException.NOTFOUND)
+            }
         } else {
             ServiceResult.Error(DataException.NOTFOUND)
         }
