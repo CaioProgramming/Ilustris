@@ -19,7 +19,7 @@ abstract class BaseService : ServiceContract {
 
     open var requireAuth: Boolean = false
 
-    private val reference: CollectionReference by lazy {
+    protected val reference: CollectionReference by lazy {
         FirebaseFirestore.getInstance().collection(dataPath)
     }
 
