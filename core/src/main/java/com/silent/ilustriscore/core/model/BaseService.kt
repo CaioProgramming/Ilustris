@@ -56,7 +56,7 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-    private fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {
+    override fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {
         return ArrayList<BaseBean>().apply {
             querySnapshot.forEach {
                 deserializeDataSnapshot(it)?.let { it1 -> add(it1) }

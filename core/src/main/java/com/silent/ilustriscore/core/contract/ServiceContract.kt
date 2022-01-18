@@ -11,6 +11,7 @@ interface ServiceContract {
     val dataPath: String
     fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean?
     fun deserializeDataSnapshot(dataSnapshot: QueryDocumentSnapshot): BaseBean
+    fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean>
     suspend fun addData(data: BaseBean): ServiceResult<DataException, BaseBean>
     suspend fun editData(data: BaseBean): ServiceResult<DataException, BaseBean>
     suspend fun deleteData(id: String): ServiceResult<DataException, Boolean>
