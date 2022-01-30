@@ -3,7 +3,6 @@ package com.silent.ilustriscore.core.model
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,7 +12,6 @@ import com.silent.ilustriscore.core.contract.ServiceContract
 import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
 import kotlinx.coroutines.tasks.await
 import java.io.File
-import java.util.*
 
 abstract class BaseService : ServiceContract {
 
@@ -23,13 +21,12 @@ abstract class BaseService : ServiceContract {
         FirebaseFirestore.getInstance().collection(dataPath)
     }
 
-    open val currentUser: FirebaseUser? by lazy {
-        FirebaseAuth.getInstance().currentUser
-    }
+    fun currentUser() = FirebaseAuth.getInstance().currentUser
+
 
     override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
         return try {
-            if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             reference.document(id).delete().await()
             ServiceResult.Success(true)
         } catch (e: Exception) {
@@ -46,7 +43,7 @@ abstract class BaseService : ServiceContract {
         field: String
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
         Log.i(javaClass.simpleName, "query: Buscando por $query em $field na collection $dataPath")
-        if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
         val query = reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).get()
             .await().documents
         return if (query.isNotEmpty()) {
@@ -68,7 +65,7 @@ abstract class BaseService : ServiceContract {
         query: String,
         field: String
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
-        if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
         Log.i(javaClass.simpleName, "query: Buscando por $query em $field na collection $dataPath")
         val query = reference.whereEqualTo(field, query).get().await().documents
         return if (query.isNotEmpty()) {
@@ -79,7 +76,7 @@ abstract class BaseService : ServiceContract {
     }
 
     override suspend fun getAllData(): ServiceResult<DataException, ArrayList<BaseBean>> {
-        if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
         val data = reference.get().await().documents
         return if (data.isNotEmpty()) {
             Log.i(javaClass.simpleName, "getAllData: $data")
@@ -88,7 +85,7 @@ abstract class BaseService : ServiceContract {
     }
 
     override suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean> {
-        if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
         val document = reference.document(id).get().await()
         return if (document != null) {
             Log.i(javaClass.simpleName, "getSingleData: $document")
@@ -105,7 +102,7 @@ abstract class BaseService : ServiceContract {
 
     override suspend fun editData(data: BaseBean): ServiceResult<DataException, BaseBean> {
         return try {
-            if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             val task = reference.document(data.id).set(data).await()
                 Log.i(javaClass.simpleName, "edited -> $data")
                 ServiceResult.Success(data)
@@ -123,7 +120,7 @@ abstract class BaseService : ServiceContract {
         field: String
     ): ServiceResult<DataException, String> {
         return try {
-            if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             val task = reference.document(id).update(field, data).await()
             if (task != null) {
                 Log.i(javaClass.simpleName, "edit successful: $data")
@@ -138,7 +135,7 @@ abstract class BaseService : ServiceContract {
 
     override suspend fun addData(data: BaseBean): ServiceResult<DataException, BaseBean> {
         return try {
-            if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             val task = reference.add(data).await()
             if (task != null) {
                 Log.d(javaClass.simpleName, "data saved -> $data")
@@ -153,7 +150,7 @@ abstract class BaseService : ServiceContract {
 
     suspend fun uploadToStorage(uri: String): ServiceResult<DataException, String> {
         try {
-            if (requireAuth && currentUser == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             val file = File(uri)
             val uriFile = Uri.fromFile(file)
             val iconRef = FirebaseStorage.getInstance().reference.child("$dataPath/${file.name}")
