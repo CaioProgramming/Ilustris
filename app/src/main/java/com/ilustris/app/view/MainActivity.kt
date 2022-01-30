@@ -17,11 +17,12 @@ import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel = IlustrisViewModel()
+    private val viewModel by lazy {
+        IlustrisViewModel(application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build()
         )
-        if (viewModel.currentUser != null) {
+        if (viewModel.getUser() != null) {
             LoginHelper.signIn(this, providers, R.style.Ilustris_Theme, R.mipmap.ic_launcher)
         } else {
             viewModel.getAllData()

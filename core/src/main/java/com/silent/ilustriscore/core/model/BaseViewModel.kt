@@ -1,16 +1,18 @@
 package com.silent.ilustriscore.core.model
 
+import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ViewModelContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel<T> : ViewModel(), ViewModelContract where T : BaseBean {
+abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(application),
+    ViewModelContract where T : BaseBean {
 
     fun getUser() = service.currentUser()
 
