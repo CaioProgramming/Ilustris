@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.viewModelState.observe(this, {
+        viewModel.viewModelState.observe(this) {
             when (it) {
                 ViewModelBaseState.DataDeletedState -> {
                     getView().showSnackBar("App removido com sucesso")
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                     login()
                 }
             }
-        })
+        }
     }
 
     private fun setupRecyclerview(dataList: List<BaseBean>) {

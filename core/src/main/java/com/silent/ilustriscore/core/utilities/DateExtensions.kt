@@ -13,7 +13,10 @@ enum class DateFormats(val format: String) {
 }
 
 
-fun Date.formatDate(date: Date, format: String? = null): String {
-    val fmt = if (format != null) SimpleDateFormat(format, Locale.getDefault()) else SimpleDateFormat.getDateInstance()
-    return fmt.format(date)
+fun Date.formatDate(format: String? = null): String {
+    val fmt = if (format != null) SimpleDateFormat(
+        format,
+        Locale.getDefault()
+    ) else SimpleDateFormat.getDateInstance()
+    return fmt.format(this)
 }
