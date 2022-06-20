@@ -2,9 +2,9 @@ package com.ilustris.app.view
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ilustris.app.*
@@ -12,19 +12,34 @@ import com.ilustris.app.databinding.ActivityMainBinding
 import com.ilustris.app.view.adapter.AppsAdapter
 import com.ilustris.app.view.dialog.ContactDialog
 import com.ilustris.app.view.dialog.NewAppDialog
-import com.ilustris.ui.auth.LoginHelper
+import com.ilustris.ui.auth.AuthActivity
 import com.ilustris.ui.extensions.ERROR_COLOR
 import com.ilustris.ui.extensions.getView
 import com.ilustris.ui.extensions.showSnackBar
 import com.silent.ilustriscore.core.bean.BaseBean
+import com.silent.ilustriscore.core.model.ErrorType
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.delayedFunction
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AuthActivity() {
 
     lateinit var mainBinding: ActivityMainBinding
     private val viewModel by lazy {
         IlustrisViewModel(application)
+    }
+
+    override fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
+        if (result.resultCode == Activity.RESULT_OK && result.idpResponse != null) {
+            viewModel.getAllData()
+        } else {
+            getView().showSnackBar(
+                "Ocorreu um erro ao realizar o login, tente novamente",
+                actionText = "Ok", action = {
+                    login()
+                }, backColor = getColor(ERROR_COLOR)
+            )
+
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         }
         observeViewModel()
         viewModel.getAllData()
-        login()
     }
 
     private fun showNewAppDialog() {
@@ -62,10 +76,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 is ViewModelBaseState.DataUpdateState -> getView().showSnackBar("App atualizado com sucesso")
 
-                is ViewModelBaseState.ErrorState -> getView().showSnackBar(
-                    backColor = ContextCompat.getColor(this, R.color.md_red500),
-                    message = "Ocorreu um erro inesperado"
-                )
+                is ViewModelBaseState.ErrorState -> {
+                    if (it.dataException.code == ErrorType.AUTH) login()
+                    getView().showSnackBar(
+                        backColor = ContextCompat.getColor(this, R.color.md_red500),
+                        message = "Ocorreu um erro inesperado ${it.dataException.code.message}"
+                    )
+                }
 
                 is ViewModelBaseState.FileUploadedState -> {
                     viewModel.saveData(viewModel.newAppDTO.apply {
@@ -130,28 +147,7 @@ class MainActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build()
         )
-        if (viewModel.getUser() != null) {
-            LoginHelper.signIn(
-                this,
-                providers,
-                R.style.Ilustris_Theme,
-                R.mipmap.ic_launcher
-            ) { resultCode ->
-                if (resultCode == Activity.RESULT_OK) {
-                    viewModel.getAllData()
-                } else {
-                    getView().showSnackBar(
-                        "Ocorreu um erro ao realizar o login, tente novamente",
-                        actionText = "Ok", action = {
-                            login()
-                        }, backColor = getColor(ERROR_COLOR)
-                    )
-
-                }
-            }
-        } else {
-            viewModel.getAllData()
-        }
+        launchLogin(R.mipmap.ic_launcher, R.style.Ilustris_Theme, providers)
     }
 
 }

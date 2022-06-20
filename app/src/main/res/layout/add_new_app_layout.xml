@@ -104,14 +104,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/md_white"
-        android:backgroundTint="?android:textColorPrimary"
+        android:background="@color/md_black"
         android:foreground="?attr/selectableItemBackground"
         android:paddingVertical="@dimen/padding_default_16dp"
         android:text="Salvar"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-        android:textColor="?android:colorBackground"
+        android:textColor="@color/md_white"
         app:cornerRadius="0dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 

@@ -75,9 +75,11 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
             val result = service.getSingleData(id)
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataRetrievedState(result.success.data))
+                updateViewState(ViewModelBaseState.LoadCompleteState)
             } else sendErrorState(result.error.errorException)
         }
     }
+
 
     open fun explicitSearch(value: String, field: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -85,6 +87,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
             val result = service.explicitSearch(value, field)
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
+                updateViewState(ViewModelBaseState.LoadCompleteState)
             } else sendErrorState(result.error.errorException)
         }
     }
@@ -95,6 +98,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
             val result = service.query(value, field)
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
+                updateViewState(ViewModelBaseState.LoadCompleteState)
             } else sendErrorState(result.error.errorException)
         }
     }
@@ -115,6 +119,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
             val result = service.getAllData()
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
+                updateViewState(ViewModelBaseState.LoadCompleteState)
             } else sendErrorState(result.error.errorException)
         }
     }
