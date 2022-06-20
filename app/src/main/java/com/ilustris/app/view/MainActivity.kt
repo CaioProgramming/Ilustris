@@ -77,14 +77,22 @@ class MainActivity : AppCompatActivity() {
                 ViewModelBaseState.RequireAuth -> {
                     login()
                 }
+                ViewModelBaseState.LoadCompleteState -> {
+                    delayedFunction(3000) {
+                        mainBinding.appbar.setExpanded(false, true)
+                    }
+                }
+                ViewModelBaseState.LoadingState -> {
+                    delayedFunction(1000) {
+                        mainBinding.appbar.setExpanded(true, true)
+                    }
+                }
             }
         }
     }
 
     private fun setupRecyclerview(dataList: List<BaseBean>) {
-        delayedFunction(3000) {
-            mainBinding.appbar.setExpanded(false, true)
-        }
+
         val listApp = dataList as appList
         val appList = ArrayList(listApp.sortedBy { data -> data.url.isEmpty() })
         if (viewModel.isAuthenticated()) {
