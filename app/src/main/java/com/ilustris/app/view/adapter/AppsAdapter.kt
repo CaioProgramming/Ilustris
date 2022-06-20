@@ -1,8 +1,6 @@
 package com.ilustris.app.view.adapter
 
 import android.content.Intent
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +12,8 @@ import com.ilustris.app.ADDNEWAPP
 import com.ilustris.app.AppDTO
 import com.ilustris.app.R
 import com.ilustris.app.appList
-import kotlinx.android.synthetic.main.apps_card_layout.view.*
+import com.ilustris.app.databinding.AppsCardLayoutBinding
+import com.ilustris.ui.extensions.setSaturation
 
 
 class AppsAdapter(
@@ -24,53 +23,40 @@ class AppsAdapter(
     RecyclerView.Adapter<AppsAdapter.AppViewHolder>() {
 
 
-    inner class AppViewHolder(itemview: View) :
-        RecyclerView.ViewHolder(itemview) {
+    inner class AppViewHolder(view: View) :
+        RecyclerView.ViewHolder(view) {
+
+        private val appsCardLayoutBinding = AppsCardLayoutBinding.bind(itemView)
+
         fun bind() {
-            appList[adapterPosition].run {
-                if (id != ADDNEWAPP) {
+            val app = appList[bindingAdapterPosition]
+            appsCardLayoutBinding.run {
+                if (app.id != ADDNEWAPP) {
                     Glide.with(itemView.context)
-                        .load(appIcon)
-                        .into(itemView.appLogoImageView)
-                } else {
-                    itemView.appLogoImageView.setImageResource(R.drawable.ic_square_7)
-                }
-                itemView.appCard.setOnClickListener {
-                    if (id != ADDNEWAPP) {
-                        if (url.isNotEmpty()) {
-                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        .load(app.appIcon)
+                        .into(appLogoImageView)
+                    appCard.setOnClickListener {
+                        if (app.url.isNotEmpty()) {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(app.url))
                             itemView.context.startActivity(browserIntent)
                         }
+                    }
+                    appCard.setOnLongClickListener {
+                        editApp(app)
+                        false
+                    }
+                    if (app.url.isEmpty()) {
+                        appLogoImageView.setSaturation(0f)
                     } else {
-                        addNewApp.invoke()
+                        appLogoImageView.setSaturation(1f)
                     }
-                }
-                if (id != ADDNEWAPP) {
-                    itemView.appCard.setOnLongClickListener {
-                        editApp(this)
-                        false
-                    }
-                    itemView.appCard.setOnDragListener { v, event ->
-                        deleteApp(this)
-                        false
-                    }
-                }
-                itemView.appCard.fadeIn()
-                if (id != ADDNEWAPP && url.isEmpty()) {
-                    val matrix = ColorMatrix().apply {
-                        setSaturation(0f)
-                    }
-                    val filter = ColorMatrixColorFilter(matrix)
-
-                    itemView.appLogoImageView.colorFilter = filter
                 } else {
-                    val matrix = ColorMatrix().apply {
-                        setSaturation(1f)
+                    appCard.setOnClickListener {
+                        addNewApp()
                     }
-                    val filter = ColorMatrixColorFilter(matrix)
-
-                    itemView.appLogoImageView.colorFilter = filter
+                    appLogoImageView.setImageResource(R.drawable.ic_square_7)
                 }
+                appCard.fadeIn()
             }
         }
     }

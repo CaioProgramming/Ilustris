@@ -9,15 +9,15 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.ilustris.app.AppDTO
 import com.ilustris.app.R
-import com.silent.ilustriscore.core.utilities.DialogStyles
-import com.silent.ilustriscore.core.view.BaseAlert
+import com.ilustris.app.databinding.AddNewAppLayoutBinding
+import com.ilustris.ui.alert.BaseAlert
+import com.ilustris.ui.alert.DialogStyles
 import gun0912.tedbottompicker.TedBottomPicker
-import kotlinx.android.synthetic.main.add_new_app_layout.view.*
 
 class NewAppDialog(
     context: Context,
     private var appDTO: AppDTO = AppDTO(),
-    val onSaveApp: (AppDTO) -> Unit
+    private val onSaveApp: (AppDTO) -> Unit
 ) :
     BaseAlert(
         context,
@@ -25,30 +25,34 @@ class NewAppDialog(
         DialogStyles.BOTTOM_NO_BORDER
     ), PermissionListener {
 
+    private var addNewAppLayoutBinding: AddNewAppLayoutBinding? = null
 
     override fun View.configure() {
+        addNewAppLayoutBinding = AddNewAppLayoutBinding.bind(view)
+        addNewAppLayoutBinding?.run {
+            appNameEditText.setText(appDTO.appName)
+            appIconImageView.setOnClickListener {
+                openPicker()
+            }
+            appDescriptionEditText.setText(appDTO.appName)
+            Glide.with(context).load(appDTO.appIcon).placeholder(R.drawable.ic_square_7)
+                .into(appIconImageView)
+            appLinkEditText.setText(appDTO.url)
+            saveAppButton.setOnClickListener {
+                onSaveApp.invoke(appDTO.apply {
+                    appDTO.description = appDescriptionEditText.text.toString()
+                    appDTO.url = appLinkEditText.text.toString()
+                    appDTO.appName = appNameEditText.text.toString()
+                })
+                dialog.dismiss()
+            }
+            if (checkPermissions()) {
+                openPicker()
+            } else {
+                requestPermissions()
+            }
+        }
 
-        appNameEditText.setText(appDTO.appName)
-        appIconImageView.setOnClickListener {
-            openPicker()
-        }
-        appDescriptionEditText.setText(appDTO.appName)
-        Glide.with(context).load(appDTO.appIcon).placeholder(R.drawable.ic_square_7)
-            .into(appIconImageView)
-        appLinkEditText.setText(appDTO.url)
-        saveAppButton.setOnClickListener {
-            onSaveApp.invoke(appDTO.apply {
-                appDTO.description = appDescriptionEditText.text.toString()
-                appDTO.url = appLinkEditText.text.toString()
-                appDTO.appName = appNameEditText.text.toString()
-            })
-            dialog.dismiss()
-        }
-        if (checkPermissions()) {
-            openPicker()
-        } else {
-            requestPermissions()
-        }
     }
 
     private fun requestPermissions() {
@@ -77,7 +81,9 @@ class NewAppDialog(
             .setSelectMaxCount(1)
             .show {
                 it.path?.let { path ->
-                    Glide.with(context).load(path).into(view.appIconImageView)
+                    addNewAppLayoutBinding?.appIconImageView?.let { appIcon ->
+                        Glide.with(context).load(path).into(appIcon)
+                    }
                     appDTO.appIcon = path
                 }
             }
@@ -88,7 +94,7 @@ class NewAppDialog(
     }
 
     override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-        view.error_message.text =
+        addNewAppLayoutBinding?.errorMessage?.text =
             "Se você não aceitar essa permissão não poderá adicionar o ícone"
     }
 

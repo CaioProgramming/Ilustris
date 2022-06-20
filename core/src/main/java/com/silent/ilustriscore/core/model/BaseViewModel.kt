@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ViewModelContract
 import kotlinx.coroutines.Dispatchers
@@ -20,12 +21,14 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
 
     fun isAuthenticated(): Boolean = service.currentUser() != null
 
-    private fun updateViewState(viewModelBaseState: ViewModelBaseState) {
+    protected fun updateViewState(viewModelBaseState: ViewModelBaseState) {
         viewModelState.postValue(viewModelBaseState)
     }
 
-    private fun sendErrorState(dataException: DataException) {
-        Log.e(javaClass.simpleName, "sendErrorState: $dataException")
+    protected fun sendErrorState(dataException: DataException) {
+        if (BuildConfig.DEBUG) {
+            Log.e(javaClass.simpleName, "sendErrorState: $dataException")
+        }
         updateViewState(ViewModelBaseState.ErrorState(dataException))
     }
 
@@ -34,15 +37,15 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
         if (isAuthenticated()) updateViewState(ViewModelBaseState.RequireAuth)
     }
 
-   open fun uploadFile(uri: String) {
-       viewModelScope.launch(Dispatchers.IO) {
-           updateViewState(ViewModelBaseState.LoadingState)
-           val result = service.uploadToStorage(uri)
-           if (result.isSuccess) {
-               updateViewState(ViewModelBaseState.FileUploadedState(Uri.parse(result.success.data)))
-           } else sendErrorState(result.error.errorException)
-       }
-   }
+    open fun uploadFile(uri: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateViewState(ViewModelBaseState.LoadingState)
+            val result = service.uploadToStorage(uri)
+            if (result.isSuccess) {
+                updateViewState(ViewModelBaseState.FileUploadedState(Uri.parse(result.success.data)))
+            } else sendErrorState(result.error.errorException)
+        }
+    }
 
     open fun editData(data: T) {
         viewModelScope.launch(Dispatchers.IO) {

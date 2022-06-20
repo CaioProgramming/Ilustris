@@ -1,30 +1,31 @@
 package com.ilustris.app.view.dialog
 
-import android.R.id
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.EXTRA_EMAIL
 import android.content.Intent.EXTRA_SUBJECT
-import android.view.View
-import com.silent.ilustriscore.core.view.BaseAlert
-import kotlinx.android.synthetic.main.contact_dialog.view.*
-import android.R.id.message
 import android.net.Uri
+import android.view.View
 import com.ilustris.app.R
-import com.silent.ilustriscore.core.utilities.DialogStyles
+import com.ilustris.app.databinding.ContactDialogBinding
+import com.ilustris.ui.alert.BaseAlert
+import com.ilustris.ui.alert.DialogStyles
 
 
 class ContactDialog(context: Context) :
     BaseAlert(context, R.layout.contact_dialog, DialogStyles.BOTTOM_NO_BORDER) {
 
     override fun View.configure() {
-        email_contact.setOnClickListener {
-            openEmail()
+        ContactDialogBinding.bind(this).run {
+            emailContact.setOnClickListener {
+                openEmail()
+            }
+
+            phoneContact.setOnClickListener {
+                openWhatsApp()
+            }
         }
 
-        phone_contact.setOnClickListener {
-            openWhatsApp()
-        }
     }
 
     private fun openWhatsApp() {

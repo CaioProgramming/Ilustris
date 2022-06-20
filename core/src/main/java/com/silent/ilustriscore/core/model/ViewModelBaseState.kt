@@ -2,12 +2,12 @@ package com.silent.ilustriscore.core.model
 
 import android.net.Uri
 import com.silent.ilustriscore.core.bean.BaseBean
-import java.util.*
 
 sealed class ViewModelBaseState {
     object RequireAuth : ViewModelBaseState()
     object DataDeletedState : ViewModelBaseState()
     object LoadingState : ViewModelBaseState()
+    object LoadCompleteState : ViewModelBaseState()
     data class DataRetrievedState(val data: BaseBean) : ViewModelBaseState()
     data class DataListRetrievedState(val dataList: ArrayList<BaseBean>) : ViewModelBaseState()
     data class DataSavedState(val data: BaseBean) : ViewModelBaseState()

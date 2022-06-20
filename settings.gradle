@@ -2,3 +2,4 @@ include ':animations'
 include ':core'
 rootProject.name = "Ilustris"
 include ':app'
+include ':ui'

@@ -8,6 +8,7 @@ import com.silent.ilustriscore.core.model.BaseService
 class IlustrisService : BaseService() {
 
     override val dataPath = "Apps"
+    override var requireAuth = true
 
     override fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean? {
         return dataSnapshot.toObject(AppDTO::class.java)?.apply {
