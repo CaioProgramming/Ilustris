@@ -10,7 +10,8 @@ enum class DateFormats(val formatted: String) {
     M_D_Y("Month D, Yr"),
     EE_D_MMM_YYY("EEE, MMM d, ''yy"),
     EE_DD_MMM_YYY_HH_MM("EEE, d MMM yyyy HH:mm"),
-    DD_MM_HH("dd.mm - HH")
+    DD_MM_HH("dd.mm - HH"),
+    RFC_3339("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ")
 }
 
 

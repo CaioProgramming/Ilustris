@@ -17,9 +17,10 @@ interface ServiceContract {
     suspend fun deleteData(id: String): ServiceResult<DataException, Boolean>
     suspend fun query(
         query: String,
-        field: String
+        field: String,
+        limit: Long = 500
     ): ServiceResult<DataException, ArrayList<BaseBean>>
 
-    suspend fun getAllData(): ServiceResult<DataException, ArrayList<BaseBean>>
+    suspend fun getAllData(limit: Long = 500): ServiceResult<DataException, ArrayList<BaseBean>>
     suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean>
 }

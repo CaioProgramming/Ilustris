@@ -7,6 +7,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ServiceContract
 import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
@@ -16,13 +17,17 @@ import java.io.File
 abstract class BaseService : ServiceContract {
 
     open var requireAuth: Boolean = false
+    open var offlineEnabled: Boolean = false
 
     protected val reference: CollectionReference by lazy {
-        FirebaseFirestore.getInstance().collection(dataPath)
+        val fireStoreInstance = FirebaseFirestore.getInstance()
+        fireStoreInstance.firestoreSettings.apply {
+            offlineEnabled = this@BaseService.offlineEnabled
+        }
+        return@lazy fireStoreInstance.collection(dataPath)
     }
 
     fun currentUser() = FirebaseAuth.getInstance().currentUser
-
 
     override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
         return try {
@@ -37,15 +42,16 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-
     override suspend fun query(
         query: String,
-        field: String
+        field: String,
+        limit: Long
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
-        Log.i(javaClass.simpleName, "query: Buscando por $query em $field na collection $dataPath")
+        logData("query: Searching for $query on field $field at collection $dataPath with limit -> $limit")
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        val query = reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).get()
-            .await().documents
+        val query =
+            reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).limit(limit).get()
+                .await().documents
         return if (query.isNotEmpty()) {
             ServiceResult.Success(getDataList(query))
         } else {
@@ -63,11 +69,12 @@ abstract class BaseService : ServiceContract {
 
     suspend fun explicitSearch(
         query: String,
-        field: String
+        field: String,
+        limit: Long = 500
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        Log.i(javaClass.simpleName, "query: Buscando por $query em $field na collection $dataPath")
-        val query = reference.whereEqualTo(field, query).get().await().documents
+        logData("query: Buscando por $query em $field na collection $dataPath with limit -> $limit")
+        val query = reference.whereEqualTo(field, query).limit(limit).get().await().documents
         return if (query.isNotEmpty()) {
             ServiceResult.Success(getDataList(query))
         } else {
@@ -75,11 +82,17 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-    override suspend fun getAllData(): ServiceResult<DataException, ArrayList<BaseBean>> {
+    private fun logData(logMessage: String) {
+        if (BuildConfig.DEBUG) {
+            Log.i(javaClass.simpleName, logMessage)
+        }
+    }
+
+    override suspend fun getAllData(limit: Long): ServiceResult<DataException, ArrayList<BaseBean>> {
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        val data = reference.get().await().documents
+        val data = reference.limit(limit).get().await().documents
         return if (data.isNotEmpty()) {
-            Log.i(javaClass.simpleName, "getAllData: $data")
+            logData("get All Data from $dataPath limited to $limit -> \n $data")
             ServiceResult.Success(getDataList(data))
         } else ServiceResult.Error(DataException.NOTFOUND)
     }
@@ -88,7 +101,7 @@ abstract class BaseService : ServiceContract {
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
         val document = reference.document(id).get().await()
         return if (document != null) {
-            Log.i(javaClass.simpleName, "getSingleData: $document")
+            logData("getSingleData: $document")
             val bean = deserializeDataSnapshot(document)
             if (bean != null) {
                 ServiceResult.Success(bean)
@@ -104,13 +117,12 @@ abstract class BaseService : ServiceContract {
         return try {
             if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             val task = reference.document(data.id).set(data).await()
-                Log.i(javaClass.simpleName, "edited -> $data")
-                ServiceResult.Success(data)
+            logData("edited -> $data")
+            ServiceResult.Success(data)
         } catch (e: Exception) {
-            Log.e(javaClass.simpleName, "update data Error!")
+            logData("update data Error!\n ${e.message}")
             e.printStackTrace()
             ServiceResult.Error(DataException.UPDATE)
-
         }
     }
 
