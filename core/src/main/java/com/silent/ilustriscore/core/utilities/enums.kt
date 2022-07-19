@@ -9,6 +9,9 @@ enum class OperationType {
     DATA_SAVED, DATA_UPDATED, DELETE, DATA_RETRIEVED, UNKNOWN
 }
 
+enum class Ordering {
+    ASCENDING, DESCENDING
+}
 
 
 

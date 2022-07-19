@@ -6,10 +6,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ServiceContract
+import com.silent.ilustriscore.core.utilities.Ordering
 import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
 import kotlinx.coroutines.tasks.await
 import java.io.File
@@ -45,13 +47,16 @@ abstract class BaseService : ServiceContract {
     override suspend fun query(
         query: String,
         field: String,
+        orderBy: String,
+        ordering: Ordering,
         limit: Long
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
-        logData("query: Searching for $query on field $field at collection $dataPath with limit -> $limit")
+        logData("query: searching for $query at field $field on collection $dataPath with limit ordered by $orderBy($ordering) -> $limit")
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        val query =
-            reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).limit(limit).get()
-                .await().documents
+        val order =
+            if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
+        val query = reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
+            .orderBy(orderBy, order).limit(limit).get().await().documents
         return if (query.isNotEmpty()) {
             ServiceResult.Success(getDataList(query))
         } else {
@@ -59,7 +64,7 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-    override fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {
+    open fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {
         return ArrayList<BaseBean>().apply {
             querySnapshot.forEach {
                 deserializeDataSnapshot(it)?.let { it1 -> add(it1) }
@@ -70,11 +75,16 @@ abstract class BaseService : ServiceContract {
     suspend fun explicitSearch(
         query: String,
         field: String,
+        orderBy: String = "id",
+        ordering: Ordering = Ordering.DESCENDING,
         limit: Long = 500
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        logData("query: Buscando por $query em $field na collection $dataPath with limit -> $limit")
-        val query = reference.whereEqualTo(field, query).limit(limit).get().await().documents
+        logData("query: searching for $query at field $field on collection $dataPath with limit ordered by $orderBy($ordering) -> $limit ")
+        val order =
+            if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
+        val query = reference.whereEqualTo(field, query).limit(limit).orderBy(orderBy, order).get()
+            .await().documents
         return if (query.isNotEmpty()) {
             ServiceResult.Success(getDataList(query))
         } else {
@@ -88,11 +98,17 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-    override suspend fun getAllData(limit: Long): ServiceResult<DataException, ArrayList<BaseBean>> {
+    override suspend fun getAllData(
+        limit: Long,
+        orderBy: String,
+        ordering: Ordering
+    ): ServiceResult<DataException, ArrayList<BaseBean>> {
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        val data = reference.limit(limit).get().await().documents
+        val order =
+            if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
+        val data = reference.limit(limit).orderBy(orderBy, order).get().await().documents
         return if (data.isNotEmpty()) {
-            logData("get All Data from $dataPath limited to $limit -> \n $data")
+            logData("get All Data from $dataPath limited to $limit ordered by $orderBy($ordering) -> \n $data ")
             ServiceResult.Success(getDataList(data))
         } else ServiceResult.Error(DataException.NOTFOUND)
     }
