@@ -8,7 +8,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
-import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ServiceContract
 import com.silent.ilustriscore.core.utilities.Ordering
@@ -91,7 +90,7 @@ abstract class BaseService : ServiceContract {
     }
 
     private fun logData(logMessage: String) {
-        if (BuildConfig.DEBUG) {
+        if (isDebug) {
             Log.i(javaClass.simpleName, logMessage)
         }
     }
