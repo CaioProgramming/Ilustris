@@ -20,6 +20,7 @@ abstract class BaseService : ServiceContract {
 
     open var requireAuth: Boolean = false
     open var offlineEnabled: Boolean = false
+    open var isDebug: Boolean = true
 
     protected val reference: CollectionReference by lazy {
         val fireStoreInstance = FirebaseFirestore.getInstance()
@@ -47,16 +48,13 @@ abstract class BaseService : ServiceContract {
     override suspend fun query(
         query: String,
         field: String,
-        orderBy: String,
-        ordering: Ordering,
         limit: Long
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
-        logData("query: searching for $query at field $field on collection $dataPath with limit ordered by $orderBy($ordering) -> $limit")
+        logData("query: searching for $query at field $field on collection $dataPath with limit -> $limit")
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        val order =
-            if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
-        val query = reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
-            .orderBy(orderBy, order).limit(limit).get().await().documents
+        val query =
+            reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).limit(limit).get()
+                .await().documents
         return if (query.isNotEmpty()) {
             ServiceResult.Success(getDataList(query))
         } else {

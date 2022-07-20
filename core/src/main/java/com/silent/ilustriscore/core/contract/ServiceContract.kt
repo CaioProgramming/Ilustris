@@ -18,8 +18,6 @@ interface ServiceContract {
     suspend fun query(
         query: String,
         field: String,
-        orderBy: String = "id",
-        ordering: Ordering = Ordering.DESCENDING,
         limit: Long = 500,
     ): ServiceResult<DataException, ArrayList<BaseBean>>
 
