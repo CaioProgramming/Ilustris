@@ -3,10 +3,7 @@ package com.silent.ilustriscore.core.model
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.ServiceContract
@@ -19,13 +16,13 @@ abstract class BaseService : ServiceContract {
 
     open var requireAuth: Boolean = false
     open var offlineEnabled: Boolean = false
-    open var isDebug: Boolean = true
+    open fun isDebug() = true
 
     protected val reference: CollectionReference by lazy {
         val fireStoreInstance = FirebaseFirestore.getInstance()
-        fireStoreInstance.firestoreSettings.apply {
-            offlineEnabled = this@BaseService.offlineEnabled
-        }
+        val settings =
+            FirebaseFirestoreSettings.Builder().setPersistenceEnabled(offlineEnabled).build()
+        fireStoreInstance.firestoreSettings = settings
         return@lazy fireStoreInstance.collection(dataPath)
     }
 
@@ -90,7 +87,7 @@ abstract class BaseService : ServiceContract {
     }
 
     private fun logData(logMessage: String) {
-        if (isDebug) {
+        if (isDebug()) {
             Log.i(javaClass.simpleName, logMessage)
         }
     }
