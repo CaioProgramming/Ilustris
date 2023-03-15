@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
@@ -21,23 +20,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 dependencies {
 
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
-    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0"
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0'
 
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4'
     api platform('com.google.firebase:firebase-bom:+')
     api 'com.google.firebase:firebase-firestore-ktx'
     api 'com.google.firebase:firebase-core:+'
