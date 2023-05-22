@@ -2,33 +2,52 @@ package com.ilustris.app.view
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.ilustris.app.*
+import com.ilustris.app.ADDNEWAPP
+import com.ilustris.app.AppDTO
+import com.ilustris.app.IlustrisViewModel
+import com.ilustris.app.R
+import com.ilustris.app.appList
 import com.ilustris.app.databinding.ActivityMainBinding
 import com.ilustris.app.view.adapter.AppsAdapter
 import com.ilustris.app.view.dialog.ContactDialog
 import com.ilustris.app.view.dialog.NewAppDialog
-import com.ilustris.ui.auth.AuthActivity
 import com.ilustris.ui.extensions.ERROR_COLOR
 import com.ilustris.ui.extensions.getView
 import com.ilustris.ui.extensions.showSnackBar
-import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.model.ErrorType
+import com.silent.ilustriscore.core.contract.ErrorType
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.delayedFunction
 
-class MainActivity : AuthActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     lateinit var mainBinding: ActivityMainBinding
     private val viewModel by lazy {
         IlustrisViewModel(application)
     }
+    private val loginResultAct = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract()
+    ) { result ->
+        onLoginResult(result)
+    }
 
-    override fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
+    protected fun launchLogin(appLogo: Int, theme: Int, loginProviders: List<AuthUI.IdpConfig>) {
+        loginResultAct.launch(
+            AuthUI.getInstance().createSignInIntentBuilder()
+                .setLogo(appLogo)
+                .setAvailableProviders(loginProviders)
+                .setTheme(theme)
+                .build()
+        )
+    }
+
+    fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == Activity.RESULT_OK && result.idpResponse != null) {
             viewModel.getAllData()
         } else {
@@ -45,7 +64,6 @@ class MainActivity : AuthActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(mainBinding.root)
         mainBinding.getInTouch.setOnClickListener {
             ContactDialog(this).buildDialog()
         }
@@ -56,7 +74,7 @@ class MainActivity : AuthActivity() {
     private fun showNewAppDialog() {
         NewAppDialog(this) { newApp ->
             viewModel.newAppDTO = newApp
-            viewModel.uploadFile(newApp.appIcon)
+            //viewModel.uploadFile(newApp.appIcon)
         }.buildDialog()
     }
 
@@ -68,7 +86,7 @@ class MainActivity : AuthActivity() {
                     viewModel.getAllData()
                 }
                 is ViewModelBaseState.DataListRetrievedState -> {
-                    setupRecyclerview(it.dataList)
+                    setupRecyclerview(it.dataList as appList)
                 }
                 is ViewModelBaseState.DataSavedState -> {
                     getView().showSnackBar("App salvo com sucesso")
@@ -79,7 +97,7 @@ class MainActivity : AuthActivity() {
                 is ViewModelBaseState.ErrorState -> {
                     if (it.dataException.code == ErrorType.AUTH) login()
                     getView().showSnackBar(
-                        backColor = ContextCompat.getColor(this, R.color.md_red500),
+                        backColor = ContextCompat.getColor(this, ERROR_COLOR),
                         message = "Ocorreu um erro inesperado ${it.dataException.code.message}"
                     )
                 }
@@ -94,23 +112,27 @@ class MainActivity : AuthActivity() {
                 ViewModelBaseState.RequireAuth -> {
                     login()
                 }
+
                 ViewModelBaseState.LoadCompleteState -> {
                     delayedFunction(3000) {
                         mainBinding.appbar.setExpanded(false, true)
                     }
                 }
+
                 ViewModelBaseState.LoadingState -> {
                     delayedFunction(1000) {
                         mainBinding.appbar.setExpanded(true, true)
                     }
                 }
+
+                else -> {}
             }
         }
     }
 
-    private fun setupRecyclerview(dataList: List<BaseBean>) {
+    private fun setupRecyclerview(dataList: appList) {
 
-        val listApp = dataList as appList
+        val listApp = dataList
         val appList = ArrayList(listApp.sortedBy { data -> data.url.isEmpty() })
         if (viewModel.isAuthenticated()) {
             appList.add(AppDTO(id = ADDNEWAPP))
@@ -147,7 +169,7 @@ class MainActivity : AuthActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build()
         )
-        launchLogin(R.mipmap.ic_launcher, R.style.Ilustris_Theme, providers)
+        launchLogin(R.mipmap.ic_launcher, R.style.Theme_Ilustris, providers)
     }
 
 }

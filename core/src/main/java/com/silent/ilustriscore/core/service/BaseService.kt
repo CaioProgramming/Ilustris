@@ -1,23 +1,26 @@
-package com.silent.ilustriscore.core.model
+package com.silent.ilustriscore.core.service
 
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.silent.ilustriscore.core.bean.BaseBean
+import com.silent.ilustriscore.core.contract.DataException
 import com.silent.ilustriscore.core.contract.ServiceContract
+import com.silent.ilustriscore.core.contract.ServiceResult
+import com.silent.ilustriscore.core.contract.ServiceSettings
 import com.silent.ilustriscore.core.utilities.Ordering
 import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
 import kotlinx.coroutines.tasks.await
 import java.io.File
 
-abstract class BaseService : ServiceContract {
+abstract class BaseService : ServiceContract, ServiceSettings {
 
-    open var requireAuth: Boolean = false
-    open var offlineEnabled: Boolean = false
-    open fun isDebug() = true
-
+    fun getUser() = currentUser()
+    override val offlineEnabled = true
     protected val reference: CollectionReference by lazy {
         val fireStoreInstance = FirebaseFirestore.getInstance()
         val settings =
@@ -26,7 +29,6 @@ abstract class BaseService : ServiceContract {
         return@lazy fireStoreInstance.collection(dataPath)
     }
 
-    fun currentUser() = FirebaseAuth.getInstance().currentUser
 
     override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
         return try {
@@ -58,13 +60,22 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-    open fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {
-        return ArrayList<BaseBean>().apply {
-            querySnapshot.forEach {
-                deserializeDataSnapshot(it)?.let { it1 -> add(it1) }
-            }
+    override suspend fun queryOnArray(
+        query: String,
+        field: String,
+        limit: Long
+    ): ServiceResult<DataException, ArrayList<BaseBean>> {
+        logData("query: searching for $query at field $field on collection $dataPath with limit -> $limit")
+        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+        val queryTask =
+            reference.whereArrayContains(field, query).get().await()
+        return if (!queryTask.isEmpty) {
+            ServiceResult.Success(getDataList(queryTask.documents))
+        } else {
+            ServiceResult.Error(DataException.NOTFOUND)
         }
     }
+
 
     suspend fun explicitSearch(
         query: String,
@@ -86,11 +97,6 @@ abstract class BaseService : ServiceContract {
         }
     }
 
-    private fun logData(logMessage: String) {
-        if (isDebug()) {
-            Log.i(javaClass.simpleName, logMessage)
-        }
-    }
 
     override suspend fun getAllData(
         limit: Long,

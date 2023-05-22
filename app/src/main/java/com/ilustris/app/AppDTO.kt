@@ -2,6 +2,7 @@ package com.ilustris.app
 
 import com.silent.ilustriscore.core.bean.BaseBean
 
+
 const val ADDNEWAPP = "ADDNEWAPP"
 typealias appList = List<AppDTO>
 

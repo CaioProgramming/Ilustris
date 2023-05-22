@@ -8,18 +8,18 @@ import androidx.lifecycle.viewModelScope
 import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
 import com.silent.ilustriscore.core.contract.DataException
-import com.silent.ilustriscore.core.contract.ViewModelContract
+import com.silent.ilustriscore.core.contract.LiveViewModelContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(application),
-    ViewModelContract where T : BaseBean {
+abstract class BaseLiveViewModel<T>(application: Application) : AndroidViewModel(application),
+    LiveViewModelContract where T : BaseBean {
 
-    fun getUser() = service.currentUser()
+    fun getUser() = liveService.currentUser()
 
     val viewModelState = MutableLiveData<ViewModelBaseState>()
 
-    fun isAuthenticated(): Boolean = service.currentUser() != null
+    fun isAuthenticated(): Boolean = liveService.currentUser() != null
 
     protected fun updateViewState(viewModelBaseState: ViewModelBaseState) {
         viewModelState.postValue(viewModelBaseState)
@@ -39,7 +39,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
     open fun editData(data: T) {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.editData(data)
+            val result = liveService.editData(data)
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataUpdateState(result.success.data))
             } else {
@@ -51,7 +51,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
     open fun saveData(data: T) {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.addData(data)
+            val result = liveService.addData(data)
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataSavedState(data))
             } else sendErrorState(result.error.errorException)
@@ -61,37 +61,33 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
     open fun getSingleData(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.getSingleData(id)
-            if (result.isSuccess) {
-                updateViewState(ViewModelBaseState.DataRetrievedState(result.success.data))
-            } else sendErrorState(result.error.errorException)
-        }
-    }
-
-    open fun explicitSearch(value: String, field: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.explicitSearch(value, field)
-            if (result.isSuccess) {
-                updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
-            } else sendErrorState(result.error.errorException)
+            liveService.getSingleData(id).collect { result ->
+                if (result.isSuccess) {
+                    updateViewState(ViewModelBaseState.DataRetrievedState(result.success.data))
+                } else {
+                    sendErrorState(result.error.errorException)
+                }
+            }
         }
     }
 
     open fun query(value: String, field: String) {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.query(value, field)
-            if (result.isSuccess) {
-                updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
-            } else sendErrorState(result.error.errorException)
+            liveService.query(value, field).collect { result ->
+                if (result.isSuccess) {
+                    updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
+                } else {
+                    sendErrorState(result.error.errorException)
+                }
+            }
         }
     }
 
     open fun deleteData(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.deleteData(id)
+            val result = liveService.deleteData(id)
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataDeletedState)
             } else sendErrorState(result.error.errorException)
@@ -101,10 +97,13 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
     open fun getAllData() {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
-            val result = service.getAllData()
-            if (result.isSuccess) {
-                updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
-            } else sendErrorState(result.error.errorException)
+            liveService.getAllData().collect { result ->
+                if (result.isSuccess) {
+                    updateViewState(ViewModelBaseState.DataListRetrievedState(result.success.data))
+                } else {
+                    sendErrorState(result.error.errorException)
+                }
+            }
         }
     }
 

@@ -6,14 +6,13 @@ import android.graphics.Color
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
-import com.ilustris.ui.R
-import java.util.*
+import java.util.Collections
 
 
-val ERROR_COLOR = R.color.material_red500
-val SUCCESS_COLOR = R.color.material_green500
-val WARNING_COLOR = R.color.material_yellow500
-val INFO_COLOR = R.color.material_blue500
+val ERROR_COLOR = com.github.mcginty.R.color.material_red500
+val SUCCESS_COLOR = com.github.mcginty.R.color.material_green500
+val WARNING_COLOR = com.github.mcginty.R.color.material_yellow500
+val INFO_COLOR = com.github.mcginty.R.color.material_blue500
 
 fun getColors(context: Context): List<String> {
     val colors = ArrayList<String>()

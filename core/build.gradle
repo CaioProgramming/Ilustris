@@ -7,37 +7,40 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.silent.ilustriscore'
 }
 
 dependencies {
 
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0"
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
-    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version"
 
-    api 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4'
     api platform('com.google.firebase:firebase-bom:+')
     api 'com.google.firebase:firebase-firestore-ktx'
-    api 'com.google.firebase:firebase-core:+'
+    api 'com.google.firebase:firebase-core:21.1.1'
     api 'com.firebaseui:firebase-ui-auth:+'
-    api 'com.google.firebase:firebase-auth:+'
+    api 'com.google.firebase:firebase-auth:22.0.0'
     api 'com.google.firebase:firebase-storage-ktx'
-    api 'com.google.firebase:firebase-appindexing:+'
-    api 'com.google.firebase:firebase-storage:+'
-    api 'com.google.firebase:firebase-messaging:+'
+    api 'com.google.firebase:firebase-appindexing:20.0.0'
+    api 'com.google.firebase:firebase-storage:20.2.0'
+    api 'com.google.firebase:firebase-messaging:23.1.2'
+
 
 }

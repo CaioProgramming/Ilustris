@@ -1,4 +1,4 @@
-package com.silent.ilustriscore.core.model
+package com.silent.ilustriscore.core.contract
 
 
 enum class ErrorType(val message: String) {
