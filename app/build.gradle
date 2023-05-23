@@ -21,17 +21,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
     buildFeatures {
         viewBinding true
     }
 }
 
 dependencies {
-
+    implementation "androidx.core:core-ktx:$android_core_version"
+    implementation "androidx.appcompat:appcompat:$android_appcompat_version"
+    implementation "com.google.android.material:material:$material_version"
     implementation project(':core')
     implementation project(':ui')
     implementation project(':animations')

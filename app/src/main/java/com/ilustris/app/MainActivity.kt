@@ -1,4 +1,4 @@
-package com.ilustris.app.view
+package com.ilustris.app
 
 import android.app.Activity
 import android.os.Bundle
@@ -9,11 +9,6 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.ilustris.app.ADDNEWAPP
-import com.ilustris.app.AppDTO
-import com.ilustris.app.IlustrisViewModel
-import com.ilustris.app.R
-import com.ilustris.app.appList
 import com.ilustris.app.databinding.ActivityMainBinding
 import com.ilustris.app.view.adapter.AppsAdapter
 import com.ilustris.app.view.dialog.ContactDialog
