@@ -20,7 +20,7 @@ _You can use the api implementation or the common implementation, it depends if 
 * api 'com.google.firebase:firebase-auth:+'1.
 
 ### 4. Implement Ilustris core library
-` api 'com.github.CaioProgramming:Ilustris:2.1.0' `
+` api 'com.github.CaioProgramming:Ilustris:core:2.1.0' `
 
 Now you're ready to go 😄 .
 

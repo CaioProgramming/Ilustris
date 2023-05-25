@@ -1,4 +1,4 @@
-package com.silent.ilustriscore.core.model
+package com.silent.ilustriscore.core.contract
 
 sealed class ServiceResult<out L, out R> {
 

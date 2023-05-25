@@ -9,6 +9,7 @@ import android.graphics.Typeface
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.google.android.material.snackbar.Snackbar
 
@@ -63,6 +64,7 @@ fun Context.isDarkMode(): Boolean {
     }
 }
 
+fun Context.getColorResource(resource: Int) = ContextCompat.getColor(this, resource)
 
 /**
 @param saturate ratio must be between 0.0 and 1.0

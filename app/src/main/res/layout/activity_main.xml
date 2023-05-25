@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
-    tools:context=".view.MainActivity">
+    tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -89,6 +89,35 @@
             android:textColor="@color/material_blue500"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <LinearLayout
+            android:background="@color/md_white"
+            android:id="@+id/error_container"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/error_message"
+                android:textAlignment="center"
+                android:padding="@dimen/padding_default_16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/errorButton"
+                android:layout_marginVertical="@dimen/margin_default_10dp"
+                app:cornerRadius="@dimen/radius_default_10dp"
+                app:elevation="0dp"
+                app:backgroundTint="@color/colorPrimaryDark"
+                android:paddingVertical="@dimen/padding_small_8dp"
+                android:paddingHorizontal="@dimen/padding_default_16dp"
+                android:text="Tentar novamente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

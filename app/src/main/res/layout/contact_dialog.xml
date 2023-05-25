@@ -16,7 +16,7 @@
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/programming"
         app:lottie_repeatMode="reverse"
-        app:lottie_scale="2" />
+         />
 
     <TextView
         android:layout_width="match_parent"

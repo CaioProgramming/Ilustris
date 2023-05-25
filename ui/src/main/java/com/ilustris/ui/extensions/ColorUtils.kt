@@ -6,14 +6,13 @@ import android.graphics.Color
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
-import com.ilustris.ui.R
-import java.util.*
+import java.util.Collections
 
 
-val ERROR_COLOR = R.color.material_red500
-val SUCCESS_COLOR = R.color.material_green500
-val WARNING_COLOR = R.color.material_yellow500
-val INFO_COLOR = R.color.material_blue500
+val ERROR_COLOR = com.github.mcginty.R.color.material_red500
+val SUCCESS_COLOR = com.github.mcginty.R.color.material_green500
+val WARNING_COLOR = com.github.mcginty.R.color.material_yellow500
+val INFO_COLOR = com.github.mcginty.R.color.material_blue500
 
 fun getColors(context: Context): List<String> {
     val colors = ArrayList<String>()
@@ -46,25 +45,25 @@ fun Bitmap.getDominantColor(): Int? {
     return swatches.firstOrNull()?.rgb
 }
 
-fun lighten(color: Int, fraction: Double): Int {
-    var red = Color.red(color)
-    var green = Color.green(color)
-    var blue = Color.blue(color)
+fun Int.lighten(fraction: Double): Int {
+    var red = Color.red(this)
+    var green = Color.green(this)
+    var blue = Color.blue(this)
     red = lightenColor(red, fraction)
     green = lightenColor(green, fraction)
     blue = lightenColor(blue, fraction)
-    val alpha = Color.alpha(color)
+    val alpha = Color.alpha(this)
     return Color.argb(alpha, red, green, blue)
 }
 
-fun darken(color: Int, fraction: Double): Int {
-    var red = Color.red(color)
-    var green = Color.green(color)
-    var blue = Color.blue(color)
+fun Int.darken(fraction: Double): Int {
+    var red = Color.red(this)
+    var green = Color.green(this)
+    var blue = Color.blue(this)
     red = darkenColor(red, fraction)
     green = darkenColor(green, fraction)
     blue = darkenColor(blue, fraction)
-    val alpha = Color.alpha(color)
+    val alpha = Color.alpha(this)
 
     return Color.argb(alpha, red, green, blue)
 }

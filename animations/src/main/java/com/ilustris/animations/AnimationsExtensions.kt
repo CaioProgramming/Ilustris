@@ -3,7 +3,7 @@ package com.ilustris.animations
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-
+import com.silent.ilustrisanimations.R
 
 
 fun View.fadeIn() = makeAnimation(this, R.anim.fade_in, View.VISIBLE)

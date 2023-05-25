@@ -2,6 +2,7 @@ package com.silent.ilustriscore.core.model
 
 import android.net.Uri
 import com.silent.ilustriscore.core.bean.BaseBean
+import com.silent.ilustriscore.core.contract.DataException
 
 sealed class ViewModelBaseState {
     object RequireAuth : ViewModelBaseState()

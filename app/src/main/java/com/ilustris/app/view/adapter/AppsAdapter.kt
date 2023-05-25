@@ -18,7 +18,7 @@ import com.ilustris.ui.extensions.setSaturation
 
 class AppsAdapter(
     var appList: appList, val addNewApp: () -> Unit,
-    val deleteApp: (AppDTO) -> Unit, val editApp: (AppDTO) -> Unit
+    val editApp: (AppDTO) -> Unit
 ) :
     RecyclerView.Adapter<AppsAdapter.AppViewHolder>() {
 
@@ -29,11 +29,12 @@ class AppsAdapter(
         private val appsCardLayoutBinding = AppsCardLayoutBinding.bind(itemView)
 
         fun bind() {
-            val app = appList[bindingAdapterPosition]
+            val app = appList[adapterPosition]
             appsCardLayoutBinding.run {
                 if (app.id != ADDNEWAPP) {
                     Glide.with(itemView.context)
-                        .load(app.appIcon)
+                        .load(app.icon)
+                        .error(R.drawable.ic_round_star_border_24)
                         .into(appLogoImageView)
                     appCard.setOnClickListener {
                         if (app.url.isNotEmpty()) {
@@ -54,7 +55,8 @@ class AppsAdapter(
                     appCard.setOnClickListener {
                         addNewApp()
                     }
-                    appLogoImageView.setImageResource(R.drawable.ic_square_7)
+                    appLogoImageView.setImageResource(R.drawable.ic_round_star_border_24)
+                    appCard.setCardBackgroundColor(itemView.context.getColor(R.color.material_grey200))
                 }
                 appCard.fadeIn()
             }

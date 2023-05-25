@@ -2,42 +2,78 @@ package com.ilustris.app.view
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.core.content.ContextCompat
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.ilustris.app.*
+import com.ilustris.animations.fadeIn
+import com.ilustris.animations.fadeOut
+import com.ilustris.app.ADDNEWAPP
+import com.ilustris.app.AppDTO
+import com.ilustris.app.IlustrisViewModel
+import com.ilustris.app.R
+import com.ilustris.app.appList
 import com.ilustris.app.databinding.ActivityMainBinding
 import com.ilustris.app.view.adapter.AppsAdapter
 import com.ilustris.app.view.dialog.ContactDialog
 import com.ilustris.app.view.dialog.NewAppDialog
-import com.ilustris.ui.auth.AuthActivity
 import com.ilustris.ui.extensions.ERROR_COLOR
 import com.ilustris.ui.extensions.getView
 import com.ilustris.ui.extensions.showSnackBar
-import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.model.ErrorType
+import com.silent.ilustriscore.core.contract.DataException
+import com.silent.ilustriscore.core.contract.ErrorType
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.delayedFunction
 
-class MainActivity : AuthActivity() {
+class MainActivity : AppCompatActivity() {
 
     lateinit var mainBinding: ActivityMainBinding
+    private var expanded = true
     private val viewModel by lazy {
         IlustrisViewModel(application)
     }
+    private var newAppDialog: NewAppDialog? = null
+    private val loginResultAct = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract()
+    ) { result ->
+        onLoginResult(result)
+    }
 
-    override fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
+    private val pickAppIconResult =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                newAppDialog?.updateIcon(uri)
+            } else {
+                getView().showSnackBar(
+                    "Ocorreu um erro ao selecionar o ícone do app, tente novamente",
+                    actionText = "Ok",
+                    action = {
+
+                    },
+                    backColor = ERROR_COLOR
+                )
+            }
+        }
+
+
+    private fun launchLogin(appLogo: Int, theme: Int, loginProviders: List<AuthUI.IdpConfig>) {
+        loginResultAct.launch(
+            AuthUI.getInstance().createSignInIntentBuilder()
+                .setLogo(appLogo)
+                .setAvailableProviders(loginProviders)
+                .setTheme(theme)
+                .build()
+        )
+    }
+
+    private fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == Activity.RESULT_OK && result.idpResponse != null) {
             viewModel.getAllData()
         } else {
-            getView().showSnackBar(
-                "Ocorreu um erro ao realizar o login, tente novamente",
-                actionText = "Ok", action = {
-                    login()
-                }, backColor = getColor(ERROR_COLOR)
-            )
+            setupError(DataException.AUTH)
 
         }
     }
@@ -50,14 +86,24 @@ class MainActivity : AuthActivity() {
             ContactDialog(this).buildDialog()
         }
         observeViewModel()
+        observeAppBarOffset()
         viewModel.getAllData()
     }
 
     private fun showNewAppDialog() {
-        NewAppDialog(this) { newApp ->
-            viewModel.newAppDTO = newApp
-            viewModel.uploadFile(newApp.appIcon)
-        }.buildDialog()
+        newAppDialog = NewAppDialog(this, AppDTO(), {
+            pickAppIconResult.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }) { newApp ->
+            viewModel.saveApp(newApp)
+        }.apply {
+            buildDialog()
+        }
+    }
+
+    private fun observeAppBarOffset() {
+        mainBinding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            expanded = verticalOffset == 0
+        }
     }
 
     private fun observeViewModel() {
@@ -67,50 +113,61 @@ class MainActivity : AuthActivity() {
                     getView().showSnackBar("App removido com sucesso")
                     viewModel.getAllData()
                 }
+
                 is ViewModelBaseState.DataListRetrievedState -> {
-                    setupRecyclerview(it.dataList)
+                    setupRecyclerview(it.dataList as appList)
                 }
+
                 is ViewModelBaseState.DataSavedState -> {
                     getView().showSnackBar("App salvo com sucesso")
                     viewModel.getAllData()
                 }
+
                 is ViewModelBaseState.DataUpdateState -> getView().showSnackBar("App atualizado com sucesso")
 
                 is ViewModelBaseState.ErrorState -> {
-                    if (it.dataException.code == ErrorType.AUTH) login()
-                    getView().showSnackBar(
-                        backColor = ContextCompat.getColor(this, R.color.md_red500),
-                        message = "Ocorreu um erro inesperado ${it.dataException.code.message}"
-                    )
+                    setupError(it.dataException)
                 }
 
-                is ViewModelBaseState.FileUploadedState -> {
-                    viewModel.saveData(viewModel.newAppDTO.apply {
-                        this.appIcon = it.downloadUrl.toString()
-                    })
-                }
-
-                is ViewModelBaseState.DataRetrievedState -> TODO()
                 ViewModelBaseState.RequireAuth -> {
-                    login()
+                    setupError(DataException(ErrorType.AUTH))
                 }
+
                 ViewModelBaseState.LoadCompleteState -> {
                     delayedFunction(3000) {
                         mainBinding.appbar.setExpanded(false, true)
                     }
                 }
+
                 ViewModelBaseState.LoadingState -> {
                     delayedFunction(1000) {
+                        mainBinding.errorContainer.fadeOut()
                         mainBinding.appbar.setExpanded(true, true)
                     }
                 }
+
+                else -> Unit
             }
         }
     }
 
-    private fun setupRecyclerview(dataList: List<BaseBean>) {
+    private fun setupError(dataException: DataException) {
+        mainBinding.run {
+            errorMessage.text = dataException.code.message
+            errorButton.text =
+                if (dataException.code == ErrorType.AUTH) "Login" else "Tentar novamente"
+            errorButton.setOnClickListener {
+                if (dataException.code == ErrorType.AUTH) login()
+                else viewModel.getAllData()
+            }
+            errorContainer.fadeIn()
+            mainBinding.appbar.setExpanded(false, true)
+        }
+    }
 
-        val listApp = dataList as appList
+    private fun setupRecyclerview(dataList: appList) {
+
+        val listApp = dataList
         val appList = ArrayList(listApp.sortedBy { data -> data.url.isEmpty() })
         if (viewModel.isAuthenticated()) {
             appList.add(AppDTO(id = ADDNEWAPP))
@@ -121,12 +178,11 @@ class MainActivity : AuthActivity() {
             showNewAppDialog()
         }, {
             requestAppDelete(it)
-        }, { appDTO ->
-            NewAppDialog(this, appDTO) {
-                viewModel.editData(it)
-            }.buildDialog()
         })
         mainBinding.appsRecyclerView.adapter = appsAdapter
+        if (expanded) {
+            viewModel.updateViewState(ViewModelBaseState.LoadCompleteState)
+        }
     }
 
     private fun requestAppDelete(it: AppDTO) {
@@ -147,7 +203,7 @@ class MainActivity : AuthActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build()
         )
-        launchLogin(R.mipmap.ic_launcher, R.style.Ilustris_Theme, providers)
+        launchLogin(R.mipmap.ic_launcher, R.style.Theme_Ilustris, providers)
     }
 
 }
