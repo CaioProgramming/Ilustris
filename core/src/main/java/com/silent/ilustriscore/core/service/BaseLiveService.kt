@@ -9,6 +9,7 @@ import com.silent.ilustriscore.core.contract.ServiceResult
 import com.silent.ilustriscore.core.contract.ServiceSettings
 import com.silent.ilustriscore.core.utilities.Ordering
 import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +41,8 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         val reference = fireStoreReference()
         if (requireAuth && currentUser() == null) {
             send(ServiceResult.Error(DataException.AUTH))
-            return@callbackFlow
+            cancel("User not logged in")
+            awaitClose()
         }
 
         reference.limit(limit).orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
@@ -53,9 +55,7 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
                 }
             }
         }
-
         awaitClose()
-
     }
 
 
@@ -67,7 +67,8 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         val reference = fireStoreReference()
         if (requireAuth && currentUser() == null) {
             send(ServiceResult.Error(DataException.AUTH))
-            return@callbackFlow
+            cancel("User not logged in")
+            awaitClose()
         }
 
         reference.whereArrayContains(field, query).addSnapshotListener { snapshot, error ->
@@ -139,7 +140,8 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         val reference = fireStoreReference()
         if (requireAuth && currentUser() == null) {
             send(ServiceResult.Error(DataException.AUTH))
-            return@callbackFlow
+            cancel("User not logged in")
+            awaitClose()
         }
         val order =
             if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
@@ -161,8 +163,9 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
     override suspend fun getSingleData(id: String): Flow<ServiceResult<DataException, BaseBean>> =
         callbackFlow {
             if (requireAuth && currentUser() == null) {
-                trySendBlocking(ServiceResult.Error(DataException.AUTH))
-                return@callbackFlow
+                send(ServiceResult.Error(DataException.AUTH))
+                cancel("User not logged in")
+                awaitClose()
             }
             fireStoreReference().document(id).get().addOnCompleteListener { document ->
                 logData("getSingleData: ${document.result}")

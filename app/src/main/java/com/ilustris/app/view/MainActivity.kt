@@ -1,17 +1,20 @@
 package com.ilustris.app.view
 
-import android.app.Activity
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 //import com.firebase.ui.auth.AuthUI
 //import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 //import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 //import com.google.android.gms.common.util.CollectionUtils.listOf
+import android.app.Activity
+import android.os.Bundle
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.ilustris.animations.fadeIn
+import com.ilustris.animations.fadeOut
 import com.ilustris.app.ADDNEWAPP
 import com.ilustris.app.AppDTO
 import com.ilustris.app.IlustrisViewModel
@@ -24,6 +27,7 @@ import com.ilustris.app.view.dialog.NewAppDialog
 import com.ilustris.ui.extensions.ERROR_COLOR
 import com.ilustris.ui.extensions.getView
 import com.ilustris.ui.extensions.showSnackBar
+import com.silent.ilustriscore.core.contract.DataException
 import com.silent.ilustriscore.core.contract.ErrorType
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.delayedFunction
@@ -31,14 +35,33 @@ import com.silent.ilustriscore.core.utilities.delayedFunction
 class MainActivity : AppCompatActivity() {
 
     lateinit var mainBinding: ActivityMainBinding
+    private var expanded = true
     private val viewModel by lazy {
         IlustrisViewModel(application)
     }
+    private var newAppDialog: NewAppDialog? = null
     private val loginResultAct = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
     ) { result ->
         onLoginResult(result)
     }
+
+    private val pickAppIconResult =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                newAppDialog?.updateIcon(uri)
+            } else {
+                getView().showSnackBar(
+                    "Ocorreu um erro ao selecionar o ícone do app, tente novamente",
+                    actionText = "Ok",
+                    action = {
+
+                    },
+                    backColor = ERROR_COLOR
+                )
+            }
+        }
+
 
     private fun launchLogin(appLogo: Int, theme: Int, loginProviders: List<AuthUI.IdpConfig>) {
         loginResultAct.launch(
@@ -54,12 +77,7 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK && result.idpResponse != null) {
             viewModel.getAllData()
         } else {
-            getView().showSnackBar(
-                "Ocorreu um erro ao realizar o login, tente novamente",
-                actionText = "Ok", action = {
-                    login()
-                }, backColor = getColor(ERROR_COLOR)
-            )
+            setupError(DataException.AUTH)
 
         }
     }
@@ -72,13 +90,24 @@ class MainActivity : AppCompatActivity() {
             ContactDialog(this).buildDialog()
         }
         observeViewModel()
+        observeAppBarOffset()
         viewModel.getAllData()
     }
 
     private fun showNewAppDialog() {
-        NewAppDialog(this) { newApp ->
+        newAppDialog = NewAppDialog(this, AppDTO(), {
+            pickAppIconResult.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }) { newApp ->
             viewModel.saveApp(newApp)
-        }.buildDialog()
+        }.apply {
+            buildDialog()
+        }
+    }
+
+    private fun observeAppBarOffset() {
+        mainBinding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            expanded = verticalOffset == 0
+        }
     }
 
     private fun observeViewModel() {
@@ -101,22 +130,11 @@ class MainActivity : AppCompatActivity() {
                 is ViewModelBaseState.DataUpdateState -> getView().showSnackBar("App atualizado com sucesso")
 
                 is ViewModelBaseState.ErrorState -> {
-                    if (it.dataException.code == ErrorType.AUTH) login()
-                    getView().showSnackBar(
-                        backColor = ContextCompat.getColor(this, ERROR_COLOR),
-                        message = "Ocorreu um erro inesperado ${it.dataException.code.message}"
-                    )
+                    setupError(it.dataException)
                 }
 
-                is ViewModelBaseState.FileUploadedState -> {
-                    viewModel.saveData(viewModel.newAppDTO.apply {
-                        this.appIcon = it.downloadUrl.toString()
-                    })
-                }
-
-                is ViewModelBaseState.DataRetrievedState -> TODO()
                 ViewModelBaseState.RequireAuth -> {
-                    login()
+                    setupError(DataException(ErrorType.AUTH))
                 }
 
                 ViewModelBaseState.LoadCompleteState -> {
@@ -127,12 +145,27 @@ class MainActivity : AppCompatActivity() {
 
                 ViewModelBaseState.LoadingState -> {
                     delayedFunction(1000) {
+                        mainBinding.errorContainer.fadeOut()
                         mainBinding.appbar.setExpanded(true, true)
                     }
                 }
 
-                else -> {}
+                else -> Unit
             }
+        }
+    }
+
+    private fun setupError(dataException: DataException) {
+        mainBinding.run {
+            errorMessage.text = dataException.code.message
+            errorButton.text =
+                if (dataException.code == ErrorType.AUTH) "Login" else "Tentar novamente"
+            errorButton.setOnClickListener {
+                if (dataException.code == ErrorType.AUTH) login()
+                else viewModel.getAllData()
+            }
+            errorContainer.fadeIn()
+            mainBinding.appbar.setExpanded(false, true)
         }
     }
 
@@ -151,7 +184,9 @@ class MainActivity : AppCompatActivity() {
             requestAppDelete(it)
         })
         mainBinding.appsRecyclerView.adapter = appsAdapter
-        viewModel.updateViewState(ViewModelBaseState.LoadCompleteState)
+        if (expanded) {
+            viewModel.updateViewState(ViewModelBaseState.LoadCompleteState)
+        }
     }
 
     private fun requestAppDelete(it: AppDTO) {

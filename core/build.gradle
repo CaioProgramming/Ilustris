@@ -27,7 +27,7 @@ dependencies {
     api platform('com.google.firebase:firebase-bom:+')
     api 'com.google.firebase:firebase-firestore-ktx'
     api 'com.google.firebase:firebase-core:21.1.1'
-    api 'com.firebaseui:firebase-ui-auth:+'
+    api 'com.firebaseui:firebase-ui-auth:8.0.2'
     api 'com.google.firebase:firebase-auth:22.0.0'
     api 'com.google.firebase:firebase-storage-ktx'
     api 'com.google.firebase:firebase-appindexing:20.0.0'

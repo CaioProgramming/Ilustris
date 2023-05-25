@@ -21,7 +21,7 @@ abstract class BaseLiveViewModel<T>(application: Application) : AndroidViewModel
 
     fun isAuthenticated(): Boolean = liveService.currentUser() != null
 
-    protected fun updateViewState(viewModelBaseState: ViewModelBaseState) {
+    fun updateViewState(viewModelBaseState: ViewModelBaseState) {
         viewModelState.postValue(viewModelBaseState)
     }
 

@@ -1,7 +1,6 @@
 package com.ilustris.app.view.adapter
 
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import com.ilustris.app.R
 import com.ilustris.app.appList
 import com.ilustris.app.databinding.AppsCardLayoutBinding
 import com.ilustris.ui.extensions.setSaturation
-
 
 
 class AppsAdapter(
@@ -35,7 +33,7 @@ class AppsAdapter(
             appsCardLayoutBinding.run {
                 if (app.id != ADDNEWAPP) {
                     Glide.with(itemView.context)
-                        .load(app.appIcon)
+                        .load(app.icon)
                         .into(appLogoImageView)
                     appCard.setOnClickListener {
                         if (app.url.isNotEmpty()) {
@@ -52,7 +50,6 @@ class AppsAdapter(
                     } else {
                         appLogoImageView.setSaturation(1f)
                     }
-                    appCard.setCardBackgroundColor(Color.TRANSPARENT)
                 } else {
                     appCard.setOnClickListener {
                         addNewApp()

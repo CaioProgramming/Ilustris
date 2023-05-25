@@ -9,12 +9,15 @@ import java.io.File
 
 class StorageService(override val dataPath: String) : StorageSettings {
 
-    suspend fun uploadToStorage(uri: String): ServiceResult<DataException, String> {
+    suspend fun uploadToStorage(
+        uri: String,
+        fileName: String? = null
+    ): ServiceResult<DataException, String> {
         try {
             if (currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             val file = File(uri)
             val uriFile = Uri.fromFile(file)
-            val iconRef = storageReference().child(file.name)
+            val iconRef = storageReference().child(fileName ?: file.name)
             val uploadTask = iconRef.putFile(uriFile).await()
             return if (!uploadTask.task.isSuccessful) {
                 ServiceResult.Error(DataException.UPLOAD)

@@ -8,8 +8,8 @@ typealias appList = List<AppDTO>
 
 data class AppDTO(
     override var id: String = "",
-    var appIcon: String = "",
-    var appName: String = "",
+    var icon: String = "",
+    var name: String = "",
     var description: String = "",
     var url: String = "",
 ) : BaseBean(id)

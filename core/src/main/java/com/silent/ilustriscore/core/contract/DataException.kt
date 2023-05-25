@@ -8,7 +8,7 @@ enum class ErrorType(val message: String) {
     UPLOAD("Erro ao salvar arquivo"),
     DELETE("Erro ao remover dados"),
     SAVE("Erro ao salvar dados"),
-    AUTH("É preciso estar logado para realizar essa operação")
+    AUTH("Você precisa estar logado para continuar.")
 }
 
 data class DataException(val code: ErrorType = ErrorType.UNKNOWN) {
