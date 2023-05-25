@@ -1,4 +1,4 @@
-package com.ilustris.app
+package com.ilustris.app.view
 
 import android.app.Activity
 import android.os.Bundle
@@ -7,8 +7,16 @@ import androidx.core.content.ContextCompat
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.android.gms.common.util.CollectionUtils.listOf
+//import com.firebase.ui.auth.AuthUI
+//import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+//import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+//import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.ilustris.app.ADDNEWAPP
+import com.ilustris.app.AppDTO
+import com.ilustris.app.IlustrisViewModel
+import com.ilustris.app.R
+import com.ilustris.app.appList
 import com.ilustris.app.databinding.ActivityMainBinding
 import com.ilustris.app.view.adapter.AppsAdapter
 import com.ilustris.app.view.dialog.ContactDialog
@@ -20,7 +28,7 @@ import com.silent.ilustriscore.core.contract.ErrorType
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.delayedFunction
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : AppCompatActivity() {
 
     lateinit var mainBinding: ActivityMainBinding
     private val viewModel by lazy {
@@ -32,7 +40,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         onLoginResult(result)
     }
 
-    protected fun launchLogin(appLogo: Int, theme: Int, loginProviders: List<AuthUI.IdpConfig>) {
+    private fun launchLogin(appLogo: Int, theme: Int, loginProviders: List<AuthUI.IdpConfig>) {
         loginResultAct.launch(
             AuthUI.getInstance().createSignInIntentBuilder()
                 .setLogo(appLogo)
@@ -42,7 +50,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         )
     }
 
-    fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
+    private fun onLoginResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == Activity.RESULT_OK && result.idpResponse != null) {
             viewModel.getAllData()
         } else {
@@ -59,6 +67,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mainBinding.root)
         mainBinding.getInTouch.setOnClickListener {
             ContactDialog(this).buildDialog()
         }
@@ -68,8 +77,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun showNewAppDialog() {
         NewAppDialog(this) { newApp ->
-            viewModel.newAppDTO = newApp
-            //viewModel.uploadFile(newApp.appIcon)
+            viewModel.saveApp(newApp)
         }.buildDialog()
     }
 
@@ -80,13 +88,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     getView().showSnackBar("App removido com sucesso")
                     viewModel.getAllData()
                 }
+
                 is ViewModelBaseState.DataListRetrievedState -> {
                     setupRecyclerview(it.dataList as appList)
                 }
+
                 is ViewModelBaseState.DataSavedState -> {
                     getView().showSnackBar("App salvo com sucesso")
                     viewModel.getAllData()
                 }
+
                 is ViewModelBaseState.DataUpdateState -> getView().showSnackBar("App atualizado com sucesso")
 
                 is ViewModelBaseState.ErrorState -> {
@@ -138,12 +149,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             showNewAppDialog()
         }, {
             requestAppDelete(it)
-        }, { appDTO ->
-            NewAppDialog(this, appDTO) {
-                viewModel.editData(it)
-            }.buildDialog()
         })
         mainBinding.appsRecyclerView.adapter = appsAdapter
+        viewModel.updateViewState(ViewModelBaseState.LoadCompleteState)
     }
 
     private fun requestAppDelete(it: AppDTO) {

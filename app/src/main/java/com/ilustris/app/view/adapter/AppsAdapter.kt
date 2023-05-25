@@ -1,6 +1,7 @@
 package com.ilustris.app.view.adapter
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -16,9 +17,10 @@ import com.ilustris.app.databinding.AppsCardLayoutBinding
 import com.ilustris.ui.extensions.setSaturation
 
 
+
 class AppsAdapter(
     var appList: appList, val addNewApp: () -> Unit,
-    val deleteApp: (AppDTO) -> Unit, val editApp: (AppDTO) -> Unit
+    val editApp: (AppDTO) -> Unit
 ) :
     RecyclerView.Adapter<AppsAdapter.AppViewHolder>() {
 
@@ -29,7 +31,7 @@ class AppsAdapter(
         private val appsCardLayoutBinding = AppsCardLayoutBinding.bind(itemView)
 
         fun bind() {
-            val app = appList[bindingAdapterPosition]
+            val app = appList[adapterPosition]
             appsCardLayoutBinding.run {
                 if (app.id != ADDNEWAPP) {
                     Glide.with(itemView.context)
@@ -50,11 +52,13 @@ class AppsAdapter(
                     } else {
                         appLogoImageView.setSaturation(1f)
                     }
+                    appCard.setCardBackgroundColor(Color.TRANSPARENT)
                 } else {
                     appCard.setOnClickListener {
                         addNewApp()
                     }
-                    appLogoImageView.setImageResource(R.drawable.ic_square_7)
+                    appLogoImageView.setImageResource(R.drawable.ic_round_star_border_24)
+                    appCard.setCardBackgroundColor(itemView.context.getColor(R.color.material_grey200))
                 }
                 appCard.fadeIn()
             }

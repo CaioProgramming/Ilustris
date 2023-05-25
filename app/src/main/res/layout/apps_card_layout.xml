@@ -9,15 +9,16 @@
     android:layout_height="100dp"
     android:layout_margin="@dimen/radius_default_10dp"
     android:stateListAnimator="@animator/scale_down_animator"
-    app:cardCornerRadius="@dimen/radius_big_20dp"
-    app:cardElevation="1dp">
+    app:cardCornerRadius="@dimen/radius_default_10dp"
+    app:strokeColor="?android:textColorHint"
+    app:strokeWidth="1dp">
 
     <ImageView
         android:id="@+id/appLogoImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        tools:src="@drawable/ic_square_7" />
+        tools:src="@mipmap/ic_launcher" />
 
 
 </com.google.android.material.card.MaterialCardView>

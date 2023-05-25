@@ -32,6 +32,7 @@ abstract class BaseService : ServiceContract, ServiceSettings {
 
     override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
         return try {
+            logData("deleteData: deleting $id from collection $dataPath")
             if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
             reference.document(id).delete().await()
             ServiceResult.Success(true)
@@ -103,12 +104,14 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         orderBy: String,
         ordering: Ordering
     ): ServiceResult<DataException, ArrayList<BaseBean>> {
+        logData("getAllData: getting all data from collection $dataPath with limit -> $limit ordered by $orderBy($ordering)")
         if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
         val order =
             if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
         val data = reference.limit(limit).orderBy(orderBy, order).get().await().documents
+        logData("data received: $data")
+
         return if (data.isNotEmpty()) {
-            logData("get All Data from $dataPath limited to $limit ordered by $orderBy($ordering) -> \n $data ")
             ServiceResult.Success(getDataList(data))
         } else ServiceResult.Error(DataException.NOTFOUND)
     }
