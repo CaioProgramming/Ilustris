@@ -34,6 +34,7 @@ class AppsAdapter(
                 if (app.id != ADDNEWAPP) {
                     Glide.with(itemView.context)
                         .load(app.icon)
+                        .error(R.drawable.ic_round_star_border_24)
                         .into(appLogoImageView)
                     appCard.setOnClickListener {
                         if (app.url.isNotEmpty()) {

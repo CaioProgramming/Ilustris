@@ -5,7 +5,6 @@ import com.silent.ilustriscore.core.contract.DataException
 import com.silent.ilustriscore.core.contract.ServiceResult
 import com.silent.ilustriscore.core.contract.StorageSettings
 import kotlinx.coroutines.tasks.await
-import java.io.File
 
 class StorageService(override val dataPath: String) : StorageSettings {
 
@@ -15,10 +14,10 @@ class StorageService(override val dataPath: String) : StorageSettings {
     ): ServiceResult<DataException, String> {
         try {
             if (currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-            val file = File(uri)
-            val uriFile = Uri.fromFile(file)
-            val iconRef = storageReference().child(fileName ?: file.name)
-            val uploadTask = iconRef.putFile(uriFile).await()
+            val file = Uri.parse(uri)
+            val iconRef =
+                storageReference().child(fileName ?: "IlustrisApp${System.currentTimeMillis()}")
+            val uploadTask = iconRef.putFile(file).await()
             return if (!uploadTask.task.isSuccessful) {
                 ServiceResult.Error(DataException.UPLOAD)
             } else {

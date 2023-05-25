@@ -1,9 +1,5 @@
 package com.ilustris.app.view
 
-//import com.firebase.ui.auth.AuthUI
-//import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-//import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-//import com.google.android.gms.common.util.CollectionUtils.listOf
 import android.app.Activity
 import android.os.Bundle
 import androidx.activity.result.PickVisualMediaRequest

@@ -1,6 +1,6 @@
 package com.ilustris.app.view.dialog
 
-import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.view.View
 import com.bumptech.glide.Glide
@@ -11,13 +11,13 @@ import com.ilustris.ui.alert.BaseAlert
 import com.ilustris.ui.alert.DialogStyles
 
 class NewAppDialog(
-    private val activity: Activity,
+    context: Context,
     private var appDTO: AppDTO = AppDTO(),
     private val launchPicker: () -> Unit,
     private val onSaveApp: (AppDTO) -> Unit
 ) :
     BaseAlert(
-        activity,
+        context,
         R.layout.add_new_app_layout,
         DialogStyles.BOTTOM_NO_BORDER
     ) {
@@ -62,7 +62,7 @@ class NewAppDialog(
     }
 
     fun updateIcon(uri: Uri) {
-        appDTO.icon = uri.path.toString()
+        appDTO.icon = uri.toString()
         addNewAppLayoutBinding?.run {
             Glide.with(context).load(uri).placeholder(R.drawable.ic_round_star_border_24)
                 .into(appIconImageView)
