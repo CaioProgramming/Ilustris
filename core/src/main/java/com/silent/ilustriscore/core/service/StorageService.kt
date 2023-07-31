@@ -6,7 +6,9 @@ import com.silent.ilustriscore.core.contract.ServiceResult
 import com.silent.ilustriscore.core.contract.StorageSettings
 import kotlinx.coroutines.tasks.await
 
-class StorageService(override val dataPath: String) : StorageSettings {
+abstract class StorageService(override val dataPath: String) : StorageSettings {
+
+    override val requireAuth: Boolean = true
 
     suspend fun uploadToStorage(
         uri: String,
