@@ -29,7 +29,6 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         return@lazy fireStoreInstance.collection(dataPath)
     }
 
-
     override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
         return try {
             logData("deleteData: deleting $id from collection $dataPath")
