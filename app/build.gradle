@@ -7,8 +7,9 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    namespace 'com.ilustris.app'
 
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.ilustris.app"
         minSdkVersion 26
