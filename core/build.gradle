@@ -21,33 +21,6 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
-    // multiple flavours. produces the following artifacts: -productionRelease.aar, -sandboxRelease.aar, -productionDebug.aar, -sandboxDebug.aar
-    productFlavors {
-        production {
-            buildConfigField 'String', 'ENV', '"Release"'
-        }
-    }
-
-    // default build flavour
-    defaultPublishConfig "Release"
-    // true to publish all flavour artifacts
-    publishNonDefault true
-
-}
-
-// Publish default flavour as main artifact, otherwise the maven pom is not generated
-if (android.productFlavors.size() > 0) {
-    android.libraryVariants.all { variant ->
-        if (android.publishNonDefault && variant.name == android.defaultPublishConfig) {
-            def bundleTask = tasks["bundle${name.capitalize()}"]
-            artifacts {
-                archives(bundleTask.archivePath) {
-                    classifier null
-                    builtBy bundleTask
-                }
-            }
-        }
-    }
 }
 
 dependencies {
