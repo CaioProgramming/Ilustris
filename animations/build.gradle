@@ -21,6 +21,4 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.github.jitpack:android-example:1.0.1'
-
 }
