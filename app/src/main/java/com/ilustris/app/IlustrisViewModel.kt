@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import com.silent.ilustriscore.core.model.BaseLiveViewModel
 import com.silent.ilustriscore.core.model.ViewModelBaseState
-import com.silent.ilustriscore.core.service.StorageService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -12,7 +11,7 @@ import kotlinx.coroutines.launch
 class IlustrisViewModel(application: Application) : BaseLiveViewModel<AppDTO>(application) {
 
     private val storageService by lazy {
-        StorageService("Apps")
+        IlustrisAppService()
     }
 
     fun saveApp(app: AppDTO) {

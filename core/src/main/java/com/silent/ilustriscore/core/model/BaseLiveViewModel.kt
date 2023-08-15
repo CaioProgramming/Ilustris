@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.contract.DataException
+import com.silent.ilustriscore.core.contract.DataError
 import com.silent.ilustriscore.core.contract.LiveViewModelContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,17 +15,17 @@ import kotlinx.coroutines.launch
 abstract class BaseLiveViewModel<T>(application: Application) : AndroidViewModel(application),
     LiveViewModelContract where T : BaseBean {
 
-    fun getUser() = liveService.currentUser()
+    fun getUser() = liveService.getCurrentUser()
 
     val viewModelState = MutableLiveData<ViewModelBaseState>()
 
-    fun isAuthenticated(): Boolean = liveService.currentUser() != null
+    fun isAuthenticated(): Boolean = getUser() != null
 
     fun updateViewState(viewModelBaseState: ViewModelBaseState) {
         viewModelState.postValue(viewModelBaseState)
     }
 
-    protected fun sendErrorState(dataException: DataException) {
+    protected fun sendErrorState(dataException: DataError) {
         if (BuildConfig.DEBUG) {
             Log.e(javaClass.simpleName, "sendErrorState: $dataException")
         }
@@ -36,6 +36,7 @@ abstract class BaseLiveViewModel<T>(application: Application) : AndroidViewModel
         if (isAuthenticated()) updateViewState(ViewModelBaseState.RequireAuth)
     }
 
+
     open fun editData(data: T) {
         viewModelScope.launch(Dispatchers.IO) {
             updateViewState(ViewModelBaseState.LoadingState)
@@ -43,7 +44,7 @@ abstract class BaseLiveViewModel<T>(application: Application) : AndroidViewModel
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataUpdateState(result.success.data))
             } else {
-                updateViewState(ViewModelBaseState.ErrorState(DataException.UPDATE))
+                sendErrorState(result.error.errorException)
             }
         }
     }

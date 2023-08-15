@@ -12,26 +12,26 @@ interface LiveServiceContract {
     fun deserializeDataSnapshot(dataSnapshot: DocumentSnapshot): BaseBean?
     fun deserializeDataSnapshot(dataSnapshot: QueryDocumentSnapshot): BaseBean
 
-    suspend fun addData(data: BaseBean): ServiceResult<DataException, BaseBean>
-    suspend fun editData(data: BaseBean): ServiceResult<DataException, BaseBean>
-    suspend fun deleteData(id: String): ServiceResult<DataException, Boolean>
+    suspend fun addData(data: BaseBean): ServiceResult<DataError, BaseBean>
+    suspend fun editData(data: BaseBean): ServiceResult<DataError, BaseBean>
+    suspend fun deleteData(id: String): ServiceResult<DataError, Boolean>
 
     suspend fun query(
         query: String,
         field: String,
         limit: Long = 500,
-    ): Flow<ServiceResult<DataException, ArrayList<BaseBean>>>
+    ): Flow<ServiceResult<DataError, ArrayList<BaseBean>>>
 
     suspend fun queryOnArray(
         query: String,
         field: String,
         limit: Long = 500,
-    ): Flow<ServiceResult<DataException, ArrayList<BaseBean>>>
+    ): Flow<ServiceResult<DataError, ArrayList<BaseBean>>>
 
     fun getAllData(
         limit: Long = 500, orderBy: String = "id", ordering: Ordering = Ordering.DESCENDING,
 
-        ): Flow<ServiceResult<DataException, ArrayList<BaseBean>>>
+        ): Flow<ServiceResult<DataError, ArrayList<BaseBean>>>
 
-    suspend fun getSingleData(id: String): Flow<ServiceResult<DataException, BaseBean>>
+    suspend fun getSingleData(id: String): Flow<ServiceResult<DataError, BaseBean>>
 }

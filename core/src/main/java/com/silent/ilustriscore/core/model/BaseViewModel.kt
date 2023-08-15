@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.silent.ilustriscore.BuildConfig
 import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.contract.DataException
+import com.silent.ilustriscore.core.contract.DataError
 import com.silent.ilustriscore.core.contract.ViewModelContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,17 +15,17 @@ import kotlinx.coroutines.launch
 abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(application),
     ViewModelContract where T : BaseBean {
 
-    fun getUser() = service.currentUser()
+    fun getUser() = service.getCurrentUser()
 
     val viewModelState = MutableLiveData<ViewModelBaseState>()
 
-    fun isAuthenticated(): Boolean = service.currentUser() != null
+    fun isAuthenticated(): Boolean = getUser() != null
 
     fun updateViewState(viewModelBaseState: ViewModelBaseState) {
         viewModelState.postValue(viewModelBaseState)
     }
 
-    protected fun sendErrorState(dataException: DataException) {
+    protected fun sendErrorState(dataException: DataError) {
         if (BuildConfig.DEBUG) {
             Log.e(javaClass.simpleName, "sendErrorState: $dataException")
         }
@@ -33,7 +33,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
     }
 
     fun checkAuth() {
-        if (isAuthenticated()) updateViewState(ViewModelBaseState.RequireAuth)
+        if (isAuthenticated()) sendErrorState(DataError.Auth)
     }
 
     open fun editData(data: T) {
@@ -43,7 +43,7 @@ abstract class BaseViewModel<T>(application: Application) : AndroidViewModel(app
             if (result.isSuccess) {
                 updateViewState(ViewModelBaseState.DataUpdateState(result.success.data))
             } else {
-                updateViewState(ViewModelBaseState.ErrorState(DataException.UPDATE))
+                sendErrorState(result.error.errorException)
             }
         }
     }

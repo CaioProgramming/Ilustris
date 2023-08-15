@@ -3,12 +3,14 @@ package com.silent.ilustriscore.core.service
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.contract.DataException
+import com.silent.ilustriscore.core.contract.DataError
+import com.silent.ilustriscore.core.contract.PagingResult
 import com.silent.ilustriscore.core.contract.ServiceContract
 import com.silent.ilustriscore.core.contract.ServiceResult
 import com.silent.ilustriscore.core.contract.ServiceSettings
@@ -19,8 +21,12 @@ import java.io.File
 
 abstract class BaseService : ServiceContract, ServiceSettings {
 
-    fun getUser() = currentUser()
     override val offlineEnabled = true
+
+    private fun authError(): ServiceResult.Error<DataError> {
+        return ServiceResult.Error(DataError.Auth)
+    }
+
     protected val reference: CollectionReference by lazy {
         val fireStoreInstance = FirebaseFirestore.getInstance()
         val settings =
@@ -29,17 +35,15 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         return@lazy fireStoreInstance.collection(dataPath)
     }
 
-    override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
+    override suspend fun deleteData(id: String): ServiceResult<DataError, Boolean> {
         return try {
             logData("deleteData: deleting $id from collection $dataPath")
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && getCurrentUser() == null) return authError()
             reference.document(id).delete().await()
             ServiceResult.Success(true)
         } catch (e: Exception) {
             e.printStackTrace()
-            ServiceResult.Error(
-                DataException.DELETE
-            )
+            ServiceResult.Error(DataError.Delete)
         }
     }
 
@@ -47,16 +51,22 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         query: String,
         field: String,
         limit: Long
-    ): ServiceResult<DataException, ArrayList<BaseBean>> {
-        logData("query: searching for $query at field $field on collection $dataPath with limit -> $limit")
-        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-        val query =
-            reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).limit(limit).get()
-                .await().documents
-        return if (query.isNotEmpty()) {
-            ServiceResult.Success(getDataList(query))
-        } else {
-            ServiceResult.Error(DataException.NOTFOUND)
+    ): ServiceResult<DataError, ArrayList<BaseBean>> {
+        return try {
+            logData("query: searching for $query at field $field on collection $dataPath with limit -> $limit")
+            if (requireAuth && getCurrentUser() == null) return authError()
+            val query =
+                reference.orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX).limit(limit)
+                    .get()
+                    .await().documents
+            if (query.isNotEmpty()) {
+                ServiceResult.Success(getDataList(query))
+            } else {
+                ServiceResult.Error(DataError.NotFound)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ServiceResult.Error(DataError.Unknown(e.message))
         }
     }
 
@@ -64,15 +74,15 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         query: String,
         field: String,
         limit: Long
-    ): ServiceResult<DataException, ArrayList<BaseBean>> {
+    ): ServiceResult<DataError, ArrayList<BaseBean>> {
         logData("query: searching for $query at field $field on collection $dataPath with limit -> $limit")
-        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+        if (requireAuth && getCurrentUser() == null) return authError()
         val queryTask =
             reference.whereArrayContains(field, query).get().await()
         return if (!queryTask.isEmpty) {
             ServiceResult.Success(getDataList(queryTask.documents))
         } else {
-            ServiceResult.Error(DataException.NOTFOUND)
+            ServiceResult.Error(DataError.NotFound)
         }
     }
 
@@ -83,8 +93,8 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         orderBy: String = "id",
         ordering: Ordering = Ordering.DESCENDING,
         limit: Long = 500
-    ): ServiceResult<DataException, ArrayList<BaseBean>> {
-        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+    ): ServiceResult<DataError, ArrayList<BaseBean>> {
+        if (requireAuth && getCurrentUser() == null) return authError()
         logData("query: searching for $query at field $field on collection $dataPath with limit ordered by $orderBy($ordering) -> $limit ")
         val order =
             if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
@@ -93,7 +103,7 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         return if (query.isNotEmpty()) {
             ServiceResult.Success(getDataList(query))
         } else {
-            ServiceResult.Error(DataException.NOTFOUND)
+            ServiceResult.Error(DataError.NotFound)
         }
     }
 
@@ -102,9 +112,9 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         limit: Long,
         orderBy: String,
         ordering: Ordering
-    ): ServiceResult<DataException, ArrayList<BaseBean>> {
+    ): ServiceResult<DataError, ArrayList<BaseBean>> {
         logData("getAllData: getting all data from collection $dataPath with limit -> $limit ordered by $orderBy($ordering)")
-        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+        if (requireAuth && getCurrentUser() == null) return authError()
         val order =
             if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
         val data = reference.limit(limit).orderBy(orderBy, order).get().await().documents
@@ -112,11 +122,40 @@ abstract class BaseService : ServiceContract, ServiceSettings {
 
         return if (data.isNotEmpty()) {
             ServiceResult.Success(getDataList(data))
-        } else ServiceResult.Error(DataException.NOTFOUND)
+        } else ServiceResult.Error(DataError.NotFound)
     }
 
-    override suspend fun getSingleData(id: String): ServiceResult<DataException, BaseBean> {
-        if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+
+    override suspend fun getPagingData(
+        pageSize: Long,
+        lastDocument: DocumentSnapshot?,
+        orderBy: String?,
+        ordering: Ordering
+    ): ServiceResult<DataError, PagingResult<BaseBean>> {
+        logData("getPagingData: getting all data from collection $dataPath with limit -> $pageSize ordered by $orderBy($ordering)")
+        if (requireAuth && getCurrentUser() == null) return authError()
+        val order =
+            if (ordering == Ordering.DESCENDING) Query.Direction.DESCENDING else Query.Direction.ASCENDING
+        val data = reference.apply {
+            orderBy?.let {
+                orderBy(it, order)
+            }
+            lastDocument?.let {
+                startAfter(it)
+            }
+        }.limit(pageSize).get().await().documents
+        logData("data received: $data")
+
+        return if (data.isNotEmpty()) {
+            ServiceResult.Success(getPageResult(getDataList(data), data.last()))
+        } else ServiceResult.Error(DataError.NotFound)
+    }
+
+    private fun getPageResult(dataList: ArrayList<BaseBean>, lastDocument: DocumentSnapshot) =
+        PagingResult(dataList, lastDocument)
+
+    override suspend fun getSingleData(id: String): ServiceResult<DataError, BaseBean> {
+        if (requireAuth && getCurrentUser() == null) return authError()
         val document = reference.document(id).get().await()
         return if (document != null) {
             logData("getSingleData: $document")
@@ -124,23 +163,23 @@ abstract class BaseService : ServiceContract, ServiceSettings {
             if (bean != null) {
                 ServiceResult.Success(bean)
             } else {
-                ServiceResult.Error(DataException.NOTFOUND)
+                ServiceResult.Error(DataError.NotFound)
             }
         } else {
-            ServiceResult.Error(DataException.NOTFOUND)
+            ServiceResult.Error(DataError.NotFound)
         }
     }
 
-    override suspend fun editData(data: BaseBean): ServiceResult<DataException, BaseBean> {
+    override suspend fun editData(data: BaseBean): ServiceResult<DataError, BaseBean> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && getCurrentUser() == null) return authError()
             val task = reference.document(data.id).set(data).await()
             logData("edited -> $data")
             ServiceResult.Success(data)
         } catch (e: Exception) {
             logData("update data Error!\n ${e.message}")
             e.printStackTrace()
-            ServiceResult.Error(DataException.UPDATE)
+            ServiceResult.Error(DataError.Update)
         }
     }
 
@@ -148,56 +187,53 @@ abstract class BaseService : ServiceContract, ServiceSettings {
         data: Any,
         id: String,
         field: String
-    ): ServiceResult<DataException, String> {
+    ): ServiceResult<DataError, String> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-            val task = reference.document(id).update(field, data).await()
-            if (task != null) {
-                Log.i(javaClass.simpleName, "edit successful: $data")
-                ServiceResult.Success("Dados atualizados")
-            } else ServiceResult.Error(DataException.UPDATE)
+            if (requireAuth && getCurrentUser() == null) return authError()
+            reference.document(id).update(field, data).await()
+            ServiceResult.Success("Dados atualizados")
         } catch (e: Exception) {
             e.printStackTrace()
-            ServiceResult.Error(DataException.UPDATE)
+            ServiceResult.Error(DataError.Update)
         }
     }
 
 
-    override suspend fun addData(data: BaseBean): ServiceResult<DataException, BaseBean> {
+    override suspend fun addData(data: BaseBean): ServiceResult<DataError, BaseBean> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && getCurrentUser() == null) return authError()
             val task = reference.add(data).await()
             if (task != null) {
                 Log.d(javaClass.simpleName, "data saved -> $data")
                 ServiceResult.Success(data)
-            } else ServiceResult.Error(DataException.SAVE)
+            } else ServiceResult.Error(DataError.Save)
         } catch (e: Exception) {
             e.printStackTrace()
-            ServiceResult.Error(DataException.SAVE)
+            ServiceResult.Error(DataError.Save)
         }
     }
 
 
-    suspend fun uploadToStorage(uri: String): ServiceResult<DataException, String> {
+    suspend fun uploadToStorage(uri: String): ServiceResult<DataError, String> {
         try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && getCurrentUser() == null) return authError()
             val file = File(uri)
             val uriFile = Uri.fromFile(file)
             val iconRef = FirebaseStorage.getInstance().reference.child("$dataPath/${file.name}")
             val uploadTask = iconRef.putFile(uriFile).await()
             return if (!uploadTask.task.isSuccessful) {
-                ServiceResult.Error(DataException.UPLOAD)
+                ServiceResult.Error(DataError.Upload)
             } else {
                 val downloadUrl = uploadTask.storage.downloadUrl.await()
                 if (downloadUrl == null) {
-                    ServiceResult.Error(DataException.UPLOAD)
+                    ServiceResult.Error(DataError.Upload)
                 } else {
                     ServiceResult.Success(downloadUrl.toString())
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            return ServiceResult.Error(DataException.UPLOAD)
+            return ServiceResult.Error(DataError.Upload)
         }
     }
 

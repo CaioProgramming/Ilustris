@@ -2,7 +2,7 @@ package com.silent.ilustriscore.core.contract
 
 sealed class ServiceResult<out L, out R> {
 
-    data class Error<out L>(val errorException: DataException) : ServiceResult<L, Nothing>()
+    data class Error<out L>(val errorException: DataError) : ServiceResult<L, Nothing>()
 
     data class Success<out R>(val data: R) : ServiceResult<Nothing, R>()
 

@@ -2,7 +2,7 @@ package com.silent.ilustriscore.core.model
 
 import android.net.Uri
 import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.contract.DataException
+import com.silent.ilustriscore.core.contract.DataError
 
 sealed class ViewModelBaseState {
     object RequireAuth : ViewModelBaseState()
@@ -14,5 +14,5 @@ sealed class ViewModelBaseState {
     data class DataSavedState(val data: BaseBean) : ViewModelBaseState()
     data class DataUpdateState(val data: BaseBean) : ViewModelBaseState()
     data class FileUploadedState(val downloadUrl: Uri) : ViewModelBaseState()
-    data class ErrorState(val dataException: DataException) : ViewModelBaseState()
+    data class ErrorState(val dataException: DataError) : ViewModelBaseState()
 }

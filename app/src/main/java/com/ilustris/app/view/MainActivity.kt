@@ -23,8 +23,7 @@ import com.ilustris.app.view.dialog.NewAppDialog
 import com.ilustris.ui.extensions.ERROR_COLOR
 import com.ilustris.ui.extensions.getView
 import com.ilustris.ui.extensions.showSnackBar
-import com.silent.ilustriscore.core.contract.DataException
-import com.silent.ilustriscore.core.contract.ErrorType
+import com.silent.ilustriscore.core.contract.DataError
 import com.silent.ilustriscore.core.model.ViewModelBaseState
 import com.silent.ilustriscore.core.utilities.delayedFunction
 
@@ -73,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK && result.idpResponse != null) {
             viewModel.getAllData()
         } else {
-            setupError(DataException.AUTH)
+            setupError(DataError.Auth)
 
         }
     }
@@ -129,10 +128,6 @@ class MainActivity : AppCompatActivity() {
                     setupError(it.dataException)
                 }
 
-                ViewModelBaseState.RequireAuth -> {
-                    setupError(DataException(ErrorType.AUTH))
-                }
-
                 ViewModelBaseState.LoadCompleteState -> {
                     delayedFunction(3000) {
                         mainBinding.appbar.setExpanded(false, true)
@@ -151,13 +146,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupError(dataException: DataException) {
+    private fun setupError(dataException: DataError) {
         mainBinding.run {
-            errorMessage.text = dataException.code.message
+            errorMessage.text = dataException.message
             errorButton.text =
-                if (dataException.code == ErrorType.AUTH) "Login" else "Tentar novamente"
+                if (dataException == DataError.Auth) "Login" else "Tentar novamente"
             errorButton.setOnClickListener {
-                if (dataException.code == ErrorType.AUTH) login()
+                if (dataException == DataError.Auth) login()
                 else viewModel.getAllData()
             }
             errorContainer.fadeIn()

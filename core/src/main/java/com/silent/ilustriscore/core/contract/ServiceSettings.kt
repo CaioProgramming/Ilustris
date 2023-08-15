@@ -16,6 +16,8 @@ interface ServiceSettings {
     val requireAuth: Boolean
     val offlineEnabled: Boolean
 
+    fun getCurrentUser() = FirebaseAuth.getInstance().currentUser
+
     fun fireStoreReference(): CollectionReference {
         val fireStoreInstance = FirebaseFirestore.getInstance()
         val settings =
@@ -25,7 +27,6 @@ interface ServiceSettings {
     }
 
     fun isDebug() = BuildConfig.DEBUG
-    fun currentUser() = FirebaseAuth.getInstance().currentUser
 
 
     fun getDataList(querySnapshot: MutableList<DocumentSnapshot>): ArrayList<BaseBean> {

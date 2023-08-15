@@ -11,6 +11,19 @@ enum class ErrorType(val message: String) {
     AUTH("Você precisa estar logado para continuar.")
 }
 
+
+sealed class DataError(val message: String) {
+    data class Unknown(val exceptionMessage: String?) :
+        DataError(exceptionMessage ?: ErrorType.UNKNOWN.message)
+
+    object NotFound : DataError(ErrorType.NOT_FOUND.message)
+    object Update : DataError(ErrorType.UPDATE.message)
+    object Upload : DataError(ErrorType.UPLOAD.message)
+    object Delete : DataError(ErrorType.DELETE.message)
+    object Save : DataError(ErrorType.SAVE.message)
+    object Auth : DataError(ErrorType.AUTH.message)
+}
+
 data class DataException(val code: ErrorType = ErrorType.UNKNOWN) {
     companion object {
         val NOTFOUND = DataException(ErrorType.NOT_FOUND)

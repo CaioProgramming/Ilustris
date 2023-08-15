@@ -3,12 +3,13 @@ package com.silent.ilustriscore.core.service
 import android.util.Log
 import com.google.firebase.firestore.Query
 import com.silent.ilustriscore.core.bean.BaseBean
-import com.silent.ilustriscore.core.contract.DataException
+import com.silent.ilustriscore.core.contract.DataError
 import com.silent.ilustriscore.core.contract.LiveServiceContract
 import com.silent.ilustriscore.core.contract.ServiceResult
 import com.silent.ilustriscore.core.contract.ServiceSettings
 import com.silent.ilustriscore.core.utilities.Ordering
 import com.silent.ilustriscore.core.utilities.SEARCH_SUFFIX
+import com.silent.ilustriscore.core.utilities.authError
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -18,17 +19,16 @@ import kotlinx.coroutines.tasks.await
 
 abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
 
-    fun user() = currentUser()
 
-    override suspend fun deleteData(id: String): ServiceResult<DataException, Boolean> {
+    override suspend fun deleteData(id: String): ServiceResult<DataError, Boolean> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && getCurrentUser() == null) return authError()
             fireStoreReference().document(id).delete().await()
             ServiceResult.Success(true)
         } catch (e: Exception) {
             e.printStackTrace()
             ServiceResult.Error(
-                DataException.DELETE
+                DataError.Unknown(e.message)
             )
         }
     }
@@ -37,24 +37,24 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         query: String,
         field: String,
         limit: Long
-    ): Flow<ServiceResult<DataException, ArrayList<BaseBean>>> = callbackFlow {
+    ): Flow<ServiceResult<DataError, ArrayList<BaseBean>>> = callbackFlow {
         val reference = fireStoreReference()
-        if (requireAuth && currentUser() == null) {
-            send(ServiceResult.Error(DataException.AUTH))
+        if (requireAuth && getCurrentUser() == null) {
+            send(authError())
             cancel("User not logged in")
             awaitClose()
         }
 
         reference.limit(limit).orderBy(field).startAt(query).endAt(query + SEARCH_SUFFIX)
             .limit(limit).addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                trySendBlocking(ServiceResult.Error(DataException.UNKNOWN))
-            } else {
-                snapshot?.let {
-                    trySendBlocking(ServiceResult.Success(getDataList(it.documents)))
+                if (error != null) {
+                    trySendBlocking(ServiceResult.Error(DataError.Unknown(error.message)))
+                } else {
+                    snapshot?.let {
+                        trySendBlocking(ServiceResult.Success(getDataList(it.documents)))
+                    }
                 }
             }
-        }
         awaitClose()
     }
 
@@ -63,39 +63,37 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         query: String,
         field: String,
         limit: Long
-    ): Flow<ServiceResult<DataException, ArrayList<BaseBean>>> = callbackFlow {
+    ): Flow<ServiceResult<DataError, ArrayList<BaseBean>>> = callbackFlow {
         val reference = fireStoreReference()
-        if (requireAuth && currentUser() == null) {
-            send(ServiceResult.Error(DataException.AUTH))
+        if (requireAuth && getCurrentUser() == null) {
+            send(authError())
             cancel("User not logged in")
             awaitClose()
         }
 
         reference.whereArrayContains(field, query).addSnapshotListener { snapshot, error ->
             if (error != null) {
-                trySendBlocking(ServiceResult.Error(DataException.UNKNOWN))
+                trySendBlocking(ServiceResult.Error(DataError.Unknown(error.message)))
             } else {
                 snapshot?.let {
                     trySendBlocking(ServiceResult.Success(getDataList(it.documents)))
                 }
             }
         }
-
         awaitClose()
-
     }
 
 
-    override suspend fun editData(data: BaseBean): ServiceResult<DataException, BaseBean> {
+    override suspend fun editData(data: BaseBean): ServiceResult<DataError, BaseBean> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-            val task = fireStoreReference().document(data.id).set(data).await()
+            if (requireAuth && getCurrentUser() == null) return authError()
+            fireStoreReference().document(data.id).set(data).await()
             logData("edited -> $data")
             ServiceResult.Success(data)
         } catch (e: Exception) {
             logData("update data Error!\n ${e.message}")
             e.printStackTrace()
-            ServiceResult.Error(DataException.UPDATE)
+            ServiceResult.Error(DataError.Update)
         }
     }
 
@@ -103,32 +101,29 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         data: Any,
         id: String,
         field: String
-    ): ServiceResult<DataException, String> {
+    ): ServiceResult<DataError, String> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
-            val task = fireStoreReference().document(id).update(field, data).await()
-            if (task != null) {
-                Log.i(javaClass.simpleName, "edit successful: $data")
-                ServiceResult.Success("Dados atualizados")
-            } else ServiceResult.Error(DataException.UPDATE)
+            if (requireAuth && getCurrentUser() == null) return authError()
+            fireStoreReference().document(id).update(field, data).await()
+            ServiceResult.Success("Dados atualizados")
         } catch (e: Exception) {
             e.printStackTrace()
-            ServiceResult.Error(DataException.UPDATE)
+            ServiceResult.Error(DataError.Unknown(e.message))
         }
     }
 
 
-    override suspend fun addData(data: BaseBean): ServiceResult<DataException, BaseBean> {
+    override suspend fun addData(data: BaseBean): ServiceResult<DataError, BaseBean> {
         return try {
-            if (requireAuth && currentUser() == null) return ServiceResult.Error(DataException.AUTH)
+            if (requireAuth && getCurrentUser() == null) return authError()
             val task = fireStoreReference().add(data).await()
             if (task != null) {
                 Log.d(javaClass.simpleName, "data saved -> $data")
                 ServiceResult.Success(data)
-            } else ServiceResult.Error(DataException.SAVE)
+            } else ServiceResult.Error(DataError.Save)
         } catch (e: Exception) {
             e.printStackTrace()
-            ServiceResult.Error(DataException.SAVE)
+            ServiceResult.Error(DataError.Unknown(e.message))
         }
     }
 
@@ -136,10 +131,10 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
         limit: Long,
         orderBy: String,
         ordering: Ordering
-    ): Flow<ServiceResult<DataException, ArrayList<BaseBean>>> = callbackFlow {
+    ): Flow<ServiceResult<DataError, ArrayList<BaseBean>>> = callbackFlow {
         val reference = fireStoreReference()
-        if (requireAuth && currentUser() == null) {
-            send(ServiceResult.Error(DataException.AUTH))
+        if (requireAuth && getCurrentUser() == null) {
+            send(authError())
             cancel("User not logged in")
             awaitClose()
         }
@@ -148,7 +143,7 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
 
         reference.limit(limit).orderBy(orderBy, order).addSnapshotListener { snapshot, error ->
             if (error != null) {
-                trySendBlocking(ServiceResult.Error(DataException.UNKNOWN))
+                trySendBlocking(ServiceResult.Error(DataError.Unknown(error.message)))
             } else {
                 snapshot?.let {
                     trySendBlocking(ServiceResult.Success(getDataList(it.documents)))
@@ -160,10 +155,10 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
 
     }
 
-    override suspend fun getSingleData(id: String): Flow<ServiceResult<DataException, BaseBean>> =
+    override suspend fun getSingleData(id: String): Flow<ServiceResult<DataError, BaseBean>> =
         callbackFlow {
-            if (requireAuth && currentUser() == null) {
-                send(ServiceResult.Error(DataException.AUTH))
+            if (requireAuth && getCurrentUser() == null) {
+                send(authError())
                 cancel("User not logged in")
                 awaitClose()
             }
@@ -171,7 +166,7 @@ abstract class BaseLiveService : LiveServiceContract, ServiceSettings {
                 logData("getSingleData: ${document.result}")
                 val data = deserializeDataSnapshot(document.result)
                 if (data == null) {
-                    trySendBlocking(ServiceResult.Error(DataException.NOTFOUND))
+                    trySendBlocking(ServiceResult.Error(DataError.NotFound))
                 } else {
                     trySendBlocking(ServiceResult.Success(data))
                 }
