@@ -48,9 +48,9 @@ afterEvaluate {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.ilustris.core'
-                artifactId = 'ilustris-ui'
-                version = '3.0'
+                groupId = 'com.ilustris'
+                artifactId = 'core'
+                version = '3.0.1'
             }
         }
     }
