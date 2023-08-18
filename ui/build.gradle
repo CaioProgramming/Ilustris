@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
 }
 
 android {
@@ -33,4 +34,18 @@ dependencies {
     api "androidx.fragment:fragment-ktx:1.5.7"
     api 'androidx.palette:palette:1.0.0'
 
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.ilustris.ui'
+                artifactId = 'ilustris-ui'
+                version = '3.0'
+            }
+        }
+    }
 }

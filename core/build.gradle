@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id 'maven-publish'
 }
 
 android {
@@ -39,6 +40,18 @@ dependencies {
     api 'com.google.firebase:firebase-appindexing:20.0.0'
     api 'com.google.firebase:firebase-storage:20.2.0'
     api 'com.google.firebase:firebase-messaging:23.1.2'
+}
 
-
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.ilustris.core'
+                artifactId = 'ilustris-ui'
+                version = '3.0'
+            }
+        }
+    }
 }
